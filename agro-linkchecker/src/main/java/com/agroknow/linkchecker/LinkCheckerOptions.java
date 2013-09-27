@@ -1,5 +1,6 @@
-package com.agroknow.linkchecker.options;
+package com.agroknow.linkchecker;
 
+import java.io.File;
 import java.text.MessageFormat;
 import java.util.Arrays;
 
@@ -8,6 +9,7 @@ import net.zettadata.simpleparser.SimpleMetadataFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 
 public class LinkCheckerOptions {
     public static enum SupportedOptions {
@@ -45,7 +47,7 @@ public class LinkCheckerOptions {
     private String fileFormat;
     private String rulesPath;
 
-    public static final LinkCheckerOptions newInstance(CommandLine line, Options options) {
+    public static LinkCheckerOptions newInstance(CommandLine line, Options options) {
         LinkCheckerOptions linkCheckerOptions = new LinkCheckerOptions();
         linkCheckerOptions.setSupportMode(line.getOptionValue(options.getOption(SupportedOptions.MODE.optionName).getOpt()).equals("support"));
         linkCheckerOptions.setFileFormat(line.getOptionValue(options.getOption(SupportedOptions.FILE_FORMAT.optionName).getOpt()));
@@ -57,6 +59,14 @@ public class LinkCheckerOptions {
     }
 
     public void validate() throws ParseException {
+        // check that root directory exists
+        if(this.getRootFolderPath() != null) {
+            File rootDirectoryFile = FileUtils.getFile(this.getRootFolderPath());
+            if (rootDirectoryFile == null || !rootDirectoryFile.isDirectory()) {
+                throw new ParseException("The specified rootFolder does not exist or is not a folder");
+            }
+        }
+
         // Check that in case of active mode, the successPath and the
         // errorPath are set
         if (!this.isSupportMode() && (this.getSuccessFolderPath() == null || this.getErrorFolderPath() == null)) {

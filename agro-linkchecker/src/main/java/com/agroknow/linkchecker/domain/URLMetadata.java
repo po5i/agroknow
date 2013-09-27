@@ -1,10 +1,10 @@
-package com.agroknow.linkchecker.dto;
+package com.agroknow.linkchecker.domain;
 
 import javax.ws.rs.core.Response.Status.Family;
 
 import org.springframework.data.annotation.Id;
 
-public class UrlDto {
+public class URLMetadata {
     @Id
     private String url;
     private String domain;
@@ -16,7 +16,7 @@ public class UrlDto {
      * @param domain
      * @param url
      */
-    public UrlDto(String domain, String url) {
+    public URLMetadata(String domain, String url) {
         super();
         this.domain = domain;
         this.url = url;
@@ -28,7 +28,7 @@ public class UrlDto {
      * @param statusFamily
      * @param responseStatusCode
      */
-    public UrlDto(String domain, String url, Family statusFamily, int responseStatusCode) {
+    public URLMetadata(String domain, String url, Family statusFamily, int responseStatusCode) {
         this(domain, url);
         this.statusFamily = statusFamily;
         this.responseStatusCode = responseStatusCode;

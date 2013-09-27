@@ -1,8 +1,8 @@
 package com.agroknow.linkchecker.service;
 
-import com.agroknow.linkchecker.dto.RedirectionRule;
-import com.agroknow.linkchecker.dto.UrlDto;
-import com.agroknow.linkchecker.options.LinkCheckerOptions;
+import com.agroknow.linkchecker.domain.RedirectionRule;
+import com.agroknow.linkchecker.domain.URLMetadata;
+import com.agroknow.linkchecker.LinkCheckerOptions;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,14 +20,10 @@ public final class RedirectionRulesService {
     private static final Logger LOG = LoggerFactory.getLogger(RedirectionRulesService.class);
     private static final Map<String, List<RedirectionRule>> RULES_MAP = new HashMap<String, List<RedirectionRule>>();
 
-    private static final class HOLDER {
-        public static final RedirectionRulesService SELF = new RedirectionRulesService();
-    }
+    public RedirectionRulesService() {}
 
-    private RedirectionRulesService() {}
-
-    public static RedirectionRulesService getInstance() {
-        return HOLDER.SELF;
+    public RedirectionRulesService(LinkCheckerOptions options) {
+        initializeRules(options);
     }
 
     public void initializeRules(LinkCheckerOptions options) {
@@ -54,7 +50,7 @@ public final class RedirectionRulesService {
         }
     }
 
-    public Integer isRedirectionValid(UrlDto url) {
+    public Integer isRedirectionValid(URLMetadata url) {
         StandardEvaluationContext context = new StandardEvaluationContext();
         context.setVariable("location", url);
         if (RULES_MAP.containsKey(url.getDomain())) {

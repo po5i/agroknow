@@ -50,6 +50,8 @@
 						<source>${jdk.version}</source>
 						<target>${jdk.version}</target>
 					</configuration>
+				 <source>1.6</source>
+				 <target>1.6</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -161,6 +163,13 @@
 			<artifactId>spring-data-mongodb</artifactId>
 			<version>1.2.1.RELEASE</version>
 		</dependency>
+
+        <!-- Deferred / Promise -->
+        <dependency>
+            <groupId>org.jdeferred</groupId>
+            <artifactId>jdeferred-core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
 	</dependencies>
 </project>

@@ -32,11 +32,11 @@ public class IndexerOptions {
         if(this.rootDirectory != null) {
             File rootDirectoryFile = FileUtils.getFile(this.rootDirectory);
             if (rootDirectoryFile == null || !rootDirectoryFile.isDirectory()) {
-                throw new ParseException("The specified root-directory does not exist or is not a folder");
+                throw new ParseException("The specified root-directory does not exist or is not a directory");
             }
         }
 
-        // check that root directory exists
+        // check that runtime directory exists, if not create it
         if(this.runtimeDirectory != null) {
             File runtimeDirectoryFile = FileUtils.getFile(this.runtimeDirectory);
             if (!runtimeDirectoryFile.isDirectory()) {

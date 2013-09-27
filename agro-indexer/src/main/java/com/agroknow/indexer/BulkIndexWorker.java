@@ -107,7 +107,6 @@ public class BulkIndexWorker implements Runnable {
         LOG.debug("END bulk indexer");
     }
 
-    @Override
     public void run() {
         try {
             index();

@@ -128,7 +128,7 @@ public class App {
             // parse the command line arguments
             CommandLine cli = parser.parse(options, args);
 
-            // print help and exit
+            // if --help, print help and exit
             if(cli.hasOption("help")) {
                 printHelp();
                 System.exit(0);

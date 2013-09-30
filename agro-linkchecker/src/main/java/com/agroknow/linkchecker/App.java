@@ -6,10 +6,12 @@ import com.agroknow.linkchecker.service.LinkCheckingService;
 import com.agroknow.linkchecker.service.RedirectionRulesService;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -19,9 +21,13 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
+import org.jdeferred.AlwaysCallback;
 import org.jdeferred.DeferredManager;
 import org.jdeferred.DoneCallback;
+import org.jdeferred.DoneFilter;
 import org.jdeferred.FailCallback;
+import org.jdeferred.FailFilter;
+import org.jdeferred.Promise;
 import org.jdeferred.impl.DefaultDeferredManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +45,7 @@ public final class App {
      * @param args
      * @throws InterruptedException
      */
-    public static void main(String[] args) throws InterruptedException {
+    public static void mainX(String[] args) throws InterruptedException {
         final LinkCheckerOptions options = parseOptions(args);
         LOG.info("Starting the linkchecker with the given options {}", options);
 
@@ -51,14 +57,14 @@ public final class App {
             LOG.error("The specified rootFolderPath is empty or does not contains any json files. Exiting....");
             return;
         }
+        LOG.info("Found {} files to process.", filesSize);
 
         //initialize service instances
-        RedirectionRulesService redirectionRulesService = new RedirectionRulesService(options);
+        final RedirectionRulesService redirectionRulesService = new RedirectionRulesService(options);
         final FileMetadataService fileMetaService = new FileMetadataService(options);
         final LinkCheckingService linkCheckingService = new LinkCheckingService(redirectionRulesService);
 
-        LOG.info("Found {} files to process.", filesSize);
-
+        final Semaphore semaphore = new Semaphore(filesSize);
         ExecutorService threadPool = Executors.newSingleThreadExecutor();
         DeferredManager deferredManager = new DefaultDeferredManager(threadPool);
 
@@ -69,16 +75,17 @@ public final class App {
 
                 MetricsRegistryHolder.getCounter("FILES[ALL]").inc();
 
-                // call the checkFileLocations to update the url status in FileMetadata
+                // 1. call the checkFileLocations to update the url status in fileMeta
+                semaphore.acquire();
                 deferredManager.when(new Callable<FileMetadata>() {
                     public FileMetadata call() throws Exception {
                         LOG.debug("Start link checking for file: {}", fileMeta.getFilePath());
                         return linkCheckingService.checkFileLocations(fileMeta);
                     }
 
-                // when updated try to move/copy the file to the correct location
-                }).done(new DoneCallback<FileMetadata>() {
-                    public void onDone(FileMetadata d) {
+                // 2. when link checking completes try to move/copy the file to the correct location
+                }).then(new DoneFilter<FileMetadata,FileMetadata>() {
+                    public FileMetadata filterDone(FileMetadata fileMeta) {
                         try {
                             LOG.trace("Successfully checked links for file: {}", fileMeta.getFilePath());
                             MetricsRegistryHolder.getCounter( fileMeta.isFailed() ? "FILES[ERROR]" : "FILES[SUCCESS]").inc();
@@ -88,24 +95,47 @@ public final class App {
                             } else {
                                 fileMetaService.copyFile(fileMeta.getFilePath(), !fileMeta.isFailed());
                             }
-                            LOG.debug("Successfully processed file: {}", fileMeta.getFilePath());
-                        } catch (Exception ex) {
-                            LOG.error("Failed to move/copy result file: {}", fileMeta.getFilePath(), ex);
+                        } catch(IOException ex) {
+                            throw new RuntimeException(ex);
                         }
+
+                        return fileMeta;
                     }
 
-                // if link checking failed error and continue
-                // TODO maybe some metrics should be updated here too
-                }).fail(new FailCallback<Throwable>() {
-                    public void onFail(Throwable f) {
+                // just in case link checking failed, log error and continue
+                }, new FailFilter() {
+                    public Throwable filterFail(Throwable ex) {
                         LOG.debug("Failed to check links for file: {}", fileMeta.getFilePath());
+                        return ex;
+                    }
+
+                // 3. when moving/copying completes too just log happiness
+                }).done(new DoneCallback<FileMetadata>() {
+                    public void onDone(FileMetadata fileMeta) {
+                        LOG.debug("Successfully processed file: {}", fileMeta.getFilePath());
+                    }
+
+                // just in case moving / copying failed, log error and continue
+                }).fail(new FailCallback() {
+                    public void onFail(Throwable ex) {
+                        LOG.error("Failed to move/copy result file: {}", fileMeta.getFilePath(), ex);
+                    }
+
+                // and release a permit on the semaphore please :) this is crusial!
+                }).always(new AlwaysCallback<FileMetadata>() {
+                    public void onAlways(Promise.State state, FileMetadata d, Throwable r) {
+                        semaphore.release();
                     }
                 });
+
             } catch (Exception ex) {
                 MetricsRegistryHolder.getCounter("FILES[MALFORMED]").inc();
                 LOG.error("Error reading file {}. Skipping...", f.getPath(), ex);
             }
         }
+
+        // block until all finish
+        semaphore.acquire(filesSize);
 
         MetricsRegistryHolder.report();
         LOG.info("All files processed successfully.");

@@ -1,4 +1,4 @@
-package com.agroknow.linkchecker;
+package com.agroknow.linkchecker.exceptions;
 
 public class LinkCheckingException extends RuntimeException {
 

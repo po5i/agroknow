@@ -1,9 +1,10 @@
 package com.agroknow.linkchecker.service;
 
 import com.agroknow.linkchecker.domain.FileMetadata;
+import com.agroknow.linkchecker.domain.LinkCheckerOptions;
 import com.agroknow.linkchecker.domain.URLMetadata;
-import com.agroknow.linkchecker.LinkCheckingException;
-import com.agroknow.linkchecker.LinkCheckerOptions;
+import com.agroknow.linkchecker.exceptions.LinkCheckingException;
+import com.agroknow.linkchecker.exceptions.NotSupportedProtocolException;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,7 +12,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.ws.rs.NotSupportedException;
 
 import javax.ws.rs.core.Response.Status.Family;
 
@@ -52,12 +52,12 @@ public final class FileMetadataService {
         for (String url : tmpMetadata.getLocations()) {
             try {
                 if (!url.startsWith("http")) {
-                    throw new NotSupportedException("Protocol not supported : " + url);
+                    throw new NotSupportedProtocolException("Protocol not supported : " + url);
                 }
 
                 URL u = new URL(url);
                 if (!u.getProtocol().equals("http")) {
-                    throw new NotSupportedException("Protocol not supported : " + url);
+                    throw new NotSupportedProtocolException("Protocol not supported : " + url);
                 }
                 dto.addLocation(new URLMetadata(u.getHost(), url));
             } catch (MalformedURLException e) {
@@ -69,6 +69,14 @@ public final class FileMetadataService {
         return dto;
     }
 
+    public void updateOrCopyFile(FileMetadata fileMeta) throws IOException {
+        if (options.isSupportMode()) {
+            this.updateFile(fileMeta);
+        } else {
+            this.copyFile(fileMeta.getFilePath(), !fileMeta.isFailed());
+        }
+    }
+    
     public void copyFile(String filePath, boolean success) {
         LOG.trace("Ready to move file {} to {} folder.", filePath, success ? "success" : "error");
 

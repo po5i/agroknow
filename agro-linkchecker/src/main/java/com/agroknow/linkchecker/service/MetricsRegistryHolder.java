@@ -1,4 +1,4 @@
-package com.agroknow.linkchecker;
+package com.agroknow.linkchecker.service;
 
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.MetricRegistry;

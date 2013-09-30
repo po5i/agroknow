@@ -1,4 +1,4 @@
-package com.agroknow.linkchecker;
+package com.agroknow.linkchecker.domain;
 
 import java.io.File;
 import java.text.MessageFormat;
@@ -60,11 +60,9 @@ public class LinkCheckerOptions {
 
     public void validate() throws ParseException {
         // check that root directory exists
-        if(this.getRootFolderPath() != null) {
-            File rootDirectoryFile = FileUtils.getFile(this.getRootFolderPath());
-            if (rootDirectoryFile == null || !rootDirectoryFile.isDirectory()) {
-                throw new ParseException("The specified rootFolder does not exist or is not a folder");
-            }
+        File rootDirectoryFile = FileUtils.getFile(this.getRootFolderPath());
+        if (rootDirectoryFile == null || !rootDirectoryFile.isDirectory()) {
+            throw new ParseException("The specified rootFolder does not exist or is not a folder");
         }
 
         // Check that in case of active mode, the successPath and the

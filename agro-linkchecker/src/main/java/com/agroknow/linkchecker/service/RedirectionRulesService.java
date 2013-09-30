@@ -1,8 +1,8 @@
 package com.agroknow.linkchecker.service;
 
+import com.agroknow.linkchecker.domain.LinkCheckerOptions;
 import com.agroknow.linkchecker.domain.RedirectionRule;
 import com.agroknow.linkchecker.domain.URLMetadata;
-import com.agroknow.linkchecker.LinkCheckerOptions;
 
 import java.io.File;
 import java.io.IOException;

@@ -2,7 +2,6 @@ package com.agroknow.linkchecker.service;
 
 import com.agroknow.linkchecker.domain.FileMetadata;
 import com.agroknow.linkchecker.domain.URLMetadata;
-import com.agroknow.linkchecker.MetricsRegistryHolder;
 
 import java.io.IOException;
 

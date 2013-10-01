@@ -116,12 +116,9 @@
 
         <!-- Parsing -->
 		<dependency>
-			<groupId>net.zettadata</groupId>
-			<artifactId>simple-parser</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.json-simple</groupId>
-			<artifactId>json-simple</artifactId>
+			<groupId>com.agroknow</groupId>
+			<artifactId>agro-domain</artifactId>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
         <dependency>
 			<groupId>javax.ws.rs</groupId>

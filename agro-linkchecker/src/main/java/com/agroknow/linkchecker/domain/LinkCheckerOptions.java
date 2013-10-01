@@ -1,10 +1,10 @@
 package com.agroknow.linkchecker.domain;
 
+import com.agroknow.domain.parser.factory.SimpleMetadataParserFactory;
+
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Arrays;
-
-import net.zettadata.simpleparser.SimpleMetadataFactory;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -38,7 +38,7 @@ public class LinkCheckerOptions {
         }
     }
 
-    private static final String[] FILE_FORMATS = { SimpleMetadataFactory.AKIF, SimpleMetadataFactory.AGRIF };
+    private static final String[] FILE_FORMATS = { SimpleMetadataParserFactory.AKIF, SimpleMetadataParserFactory.AGRIF };
 
     private boolean supportMode;
     private String rootFolderPath;

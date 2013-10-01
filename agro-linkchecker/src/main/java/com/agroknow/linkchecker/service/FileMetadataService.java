@@ -1,5 +1,8 @@
 package com.agroknow.linkchecker.service;
 
+import com.agroknow.domain.SimpleMetadata;
+import com.agroknow.domain.parser.ParserException;
+import com.agroknow.domain.parser.factory.SimpleMetadataParserFactory;
 import com.agroknow.linkchecker.domain.FileMetadata;
 import com.agroknow.linkchecker.domain.LinkCheckerOptions;
 import com.agroknow.linkchecker.domain.URLMetadata;
@@ -14,10 +17,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import javax.ws.rs.core.Response.Status.Family;
-
-import net.zettadata.simpleparser.ParserException;
-import net.zettadata.simpleparser.SimpleMetadata;
-import net.zettadata.simpleparser.SimpleMetadataFactory;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -40,9 +39,8 @@ public final class FileMetadataService {
     }
 
     public FileMetadata readFile(String filePath) throws ParserException {
-        SimpleMetadata tmpMetadata = SimpleMetadataFactory.getSimpleMetadata(options.getFileFormat());
-        tmpMetadata.load(filePath);
-
+        SimpleMetadata tmpMetadata = SimpleMetadataParserFactory.load(options.getFileFormat(), filePath);
+        
         if (CollectionUtils.isEmpty(tmpMetadata.getIdentifiers()) || tmpMetadata.getIdentifiers().size() > 1) {
             LOG.error("Unsupported identifiers size {} for file {}. skipping", tmpMetadata.getIdentifiers().size(), filePath);
             return null;

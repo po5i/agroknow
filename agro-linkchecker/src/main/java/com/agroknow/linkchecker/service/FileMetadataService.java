@@ -1,10 +1,13 @@
 package com.agroknow.linkchecker.service;
 
-import com.agroknow.linkchecker.dto.FileDto;
-import com.agroknow.linkchecker.dto.UrlDto;
-import com.agroknow.linkchecker.exceptions.LinkCheckerException;
-import com.agroknow.linkchecker.exceptions.ProtocolNotSupportedException;
-import com.agroknow.linkchecker.options.LinkCheckerOptions;
+import com.agroknow.domain.SimpleMetadata;
+import com.agroknow.domain.parser.ParserException;
+import com.agroknow.domain.parser.factory.SimpleMetadataParserFactory;
+import com.agroknow.linkchecker.domain.FileMetadata;
+import com.agroknow.linkchecker.domain.LinkCheckerOptions;
+import com.agroknow.linkchecker.domain.URLMetadata;
+import com.agroknow.linkchecker.exceptions.LinkCheckingException;
+import com.agroknow.linkchecker.exceptions.NotSupportedProtocolException;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,10 +18,6 @@ import java.util.Date;
 
 import javax.ws.rs.core.Response.Status.Family;
 
-import net.zettadata.simpleparser.ParserException;
-import net.zettadata.simpleparser.SimpleMetadata;
-import net.zettadata.simpleparser.SimpleMetadataFactory;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.json.simple.JSONArray;
@@ -27,52 +26,56 @@ import org.json.simple.JSONValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class FileProcessorService {
-    private static final Logger LOG = LoggerFactory.getLogger(FileProcessorService.class);
+public final class FileMetadataService {
+    private static final Logger LOG = LoggerFactory.getLogger(FileMetadataService.class);
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private LinkCheckerOptions options;
 
-    private static final class HOLDER {
-        public static final FileProcessorService SELF = new FileProcessorService();
+    public FileMetadataService() {}
+
+    public FileMetadataService(LinkCheckerOptions options) {
+        this.options = options;
     }
 
-    private FileProcessorService() {}
-
-    public static FileProcessorService getInstance() {
-        return HOLDER.SELF;
-    }
-
-    public FileDto readFile(String filePath, LinkCheckerOptions options) throws ParserException {
-        SimpleMetadata tmpMetadata = SimpleMetadataFactory.getSimpleMetadata(options.getFileFormat());
-        tmpMetadata.load(filePath);
-
+    public FileMetadata readFile(String filePath) throws ParserException {
+        SimpleMetadata tmpMetadata = SimpleMetadataParserFactory.load(options.getFileFormat(), filePath);
+        
         if (CollectionUtils.isEmpty(tmpMetadata.getIdentifiers()) || tmpMetadata.getIdentifiers().size() > 1) {
             LOG.error("Unsupported identifiers size {} for file {}. skipping", tmpMetadata.getIdentifiers().size(), filePath);
             return null;
         }
 
-        FileDto dto = new FileDto(filePath, CollectionUtils.get(tmpMetadata.getIdentifiers(), 0).toString(), options.getFileFormat());
+        FileMetadata dto = new FileMetadata(filePath, CollectionUtils.get(tmpMetadata.getIdentifiers(), 0).toString(), options.getFileFormat());
         for (String url : tmpMetadata.getLocations()) {
             try {
                 if (!url.startsWith("http")) {
-                    throw new ProtocolNotSupportedException("Protocol not supported : " + url);
+                    throw new NotSupportedProtocolException("Protocol not supported : " + url);
                 }
 
                 URL u = new URL(url);
                 if (!u.getProtocol().equals("http")) {
-                    throw new ProtocolNotSupportedException("Protocol not supported : " + url);
+                    throw new NotSupportedProtocolException("Protocol not supported : " + url);
                 }
-                dto.addLocation(new UrlDto(u.getHost(), url));
+                dto.addLocation(new URLMetadata(u.getHost(), url));
             } catch (MalformedURLException e) {
                 LOG.debug("Malformed URL {} in file with id : {}", url, dto.getIdentifier());
-                dto.addLocation(new UrlDto(null, url, Family.OTHER, -1));
-                dto.setContainsError(true);
+                dto.addLocation(new URLMetadata(null, url, Family.OTHER, -1));
+                dto.setFailed(true);
             }
         }
         return dto;
     }
 
-    public void copyFile(String filePath, LinkCheckerOptions options, boolean success) {
+    public void updateOrCopyFile(FileMetadata fileMeta) throws IOException {
+        if (options.isSupportMode()) {
+            this.updateFile(fileMeta);
+        } else {
+            this.copyFile(fileMeta.getFilePath(), !fileMeta.isFailed());
+        }
+    }
+    
+    public void copyFile(String filePath, boolean success) {
         LOG.trace("Ready to move file {} to {} folder.", filePath, success ? "success" : "error");
 
         File rootFolder = new File(options.getRootFolderPath());
@@ -88,12 +91,12 @@ public final class FileProcessorService {
     }
 
     @SuppressWarnings("unchecked")
-    public void updateFile(FileDto fileDto, LinkCheckerOptions options) throws IOException {
-        File file = new File(fileDto.getFilePath());
+    public void updateFile(FileMetadata fileMeta) throws IOException {
+        File file = new File(fileMeta.getFilePath());
         String akifString = FileUtils.readFileToString(file);
         JSONObject akifObject = (JSONObject) JSONValue.parse(akifString);
-        if (!fileDto.getIdentifier().equals(akifObject.get("identifier").toString())) {
-            throw new LinkCheckerException("Identifiers mismatch!: " + fileDto.getIdentifier() + " differs from " + akifObject.get("identifier"));
+        if (!fileMeta.getIdentifier().equals(akifObject.get("identifier").toString())) {
+            throw new LinkCheckingException("Identifiers mismatch!: " + fileMeta.getIdentifier() + " differs from " + akifObject.get("identifier"));
         }
         JSONArray expressions0 = (JSONArray) akifObject.get("expressions");
         JSONArray expressions1 = new JSONArray();
@@ -109,9 +112,9 @@ public final class FileProcessorService {
                 for (Object item : items0) {
                     JSONObject item0 = (JSONObject) item;
                     String url = (String) item0.get("url");
-                    Boolean broken = (Boolean) item0.get("broken");  
-                    if(broken != fileDto.isUrlBroken(url)) {
-                        item0.put("broken", Boolean.valueOf(fileDto.isUrlBroken(url)));
+                    Boolean broken = (Boolean) item0.get("broken");
+                    if(broken != fileMeta.isUrlBroken(url)) {
+                        item0.put("broken", Boolean.valueOf(fileMeta.isUrlBroken(url)));
                         fileChanged = true;
                         items1.add(item0);
                     }
@@ -127,5 +130,9 @@ public final class FileProcessorService {
             akifObject.put("lastUpdateDate", sdf.format(new Date(System.currentTimeMillis())));
             FileUtils.writeStringToFile(file, akifObject.toJSONString());
         }
+    }
+
+    public void setOptions(LinkCheckerOptions options) {
+        this.options = options;
     }
 }

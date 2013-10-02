@@ -2,7 +2,7 @@ package com.agroknow.linkchecker.exceptions;
 
 import java.net.MalformedURLException;
 
-public class ProtocolNotSupportedException extends MalformedURLException {
+public class NotSupportedProtocolException extends MalformedURLException {
 
     /**
      * 
@@ -12,14 +12,14 @@ public class ProtocolNotSupportedException extends MalformedURLException {
     /**
      * 
      */
-    public ProtocolNotSupportedException() {
+    public NotSupportedProtocolException() {
         super();
     }
 
     /**
-     * @param msg
+     * @param message
      */
-    public ProtocolNotSupportedException(String msg) {
-        super(msg);
+    public NotSupportedProtocolException(String message) {
+        super(message);
     }
 }

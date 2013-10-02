@@ -1,4 +1,4 @@
-package com.agroknow.linkchecker.dto;
+package com.agroknow.linkchecker.domain;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -7,19 +7,19 @@ import javax.ws.rs.core.Response.Status.Family;
 
 import org.springframework.data.annotation.Id;
 
-public class FileDto {
+public class FileMetadata {
     @Id
     private String identifier;
     private String filePath;
     private long lastCheckTimestamp;
     private String type;
-    private boolean containsError = false;
-    private List<UrlDto> locations = new ArrayList<UrlDto>();
+    private boolean failed = false;
+    private List<URLMetadata> locations = new ArrayList<URLMetadata>();
 
     /**
-     * 
+     *
      */
-    public FileDto() {
+    public FileMetadata() {
         super();
     }
 
@@ -28,7 +28,7 @@ public class FileDto {
      * @param identifier
      * @param type
      */
-    public FileDto(String filePath, String identifier, String type) {
+    public FileMetadata(String filePath, String identifier, String type) {
         this();
         this.filePath = filePath;
         this.identifier = identifier;
@@ -98,34 +98,34 @@ public class FileDto {
     /**
      * @return the locations
      */
-    public List<UrlDto> getLocations() {
+    public List<URLMetadata> getLocations() {
         return locations;
     }
 
     /**
      * @param url
      */
-    public void addLocation(UrlDto url) {
+    public void addLocation(URLMetadata url) {
         locations.add(url);
     }
 
     /**
-     * @return the containsError
+     * @return the failed
      */
-    public boolean isContainsError() {
-        return containsError;
+    public boolean isFailed() {
+        return failed;
     }
 
     /**
-     * @param containsError
-     *            the containsError to set
+     * @param failed the failed boolean to set
+     *
      */
-    public void setContainsError(boolean containsError) {
-        this.containsError = containsError;
+    public void setFailed(boolean failed) {
+        this.failed = failed;
     }
 
     public boolean isUrlBroken(String url) {
-        for(UrlDto dto : getLocations()) {
+        for(URLMetadata dto : getLocations()) {
             if(url.equals(dto.getUrl()) && dto.getStatusFamily() == Family.SUCCESSFUL) {
                 return false;
             }
@@ -139,7 +139,7 @@ public class FileDto {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("FileDto [");
+        builder.append("FileMetadata [");
         if (identifier != null) {
             builder.append("identifier=");
             builder.append(identifier);
@@ -159,7 +159,7 @@ public class FileDto {
             builder.append(", ");
         }
         builder.append("containsError=");
-        builder.append(containsError);
+        builder.append(failed);
         builder.append(", ");
         if (locations != null) {
             builder.append("locations=");

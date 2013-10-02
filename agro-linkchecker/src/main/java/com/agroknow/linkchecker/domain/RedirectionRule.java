@@ -1,4 +1,4 @@
-package com.agroknow.linkchecker.dto;
+package com.agroknow.linkchecker.domain;
 
 import org.springframework.expression.Expression;
 import org.springframework.expression.ExpressionParser;

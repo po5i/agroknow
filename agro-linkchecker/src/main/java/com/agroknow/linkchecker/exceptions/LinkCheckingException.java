@@ -1,6 +1,6 @@
 package com.agroknow.linkchecker.exceptions;
 
-public class LinkCheckerException extends RuntimeException {
+public class LinkCheckingException extends RuntimeException {
 
     /**
      * 
@@ -10,7 +10,7 @@ public class LinkCheckerException extends RuntimeException {
     /**
      * 
      */
-    public LinkCheckerException() {
+    public LinkCheckingException() {
         super();
     }
 
@@ -18,14 +18,14 @@ public class LinkCheckerException extends RuntimeException {
      * @param message
      * @param cause
      */
-    public LinkCheckerException(String message, Throwable cause) {
+    public LinkCheckingException(String message, Throwable cause) {
         super(message, cause);
     }
 
     /**
      * @param message
      */
-    public LinkCheckerException(String message) {
+    public LinkCheckingException(String message) {
         super(message);
     }
 }

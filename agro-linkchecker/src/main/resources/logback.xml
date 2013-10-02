@@ -51,7 +51,7 @@
 		</rollingPolicy>
 
 		<encoder>
-			<pattern>%d{yyyy-MM-dd}, %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd}|| %msg%n</pattern>
 		</encoder>
 	</appender>
 
@@ -67,7 +67,7 @@
 		</rollingPolicy>
 
 		<encoder>
-			<pattern>%d{yyyy-MM-dd}, %msg%n</pattern>
+			<pattern>%d{yyyy-MM-dd}|| %msg%n</pattern>
 		</encoder>
 	</appender>
 
@@ -84,10 +84,10 @@
 	</logger>
 
 	<logger name="com.agroknow" level="INFO" additivity="false">
-		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
 	</logger>
 
 	<root level="WARN">
-		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
 	</root>
 </configuration>

@@ -56,9 +56,9 @@ public final class LinkCheckingService {
             MetricsRegistryHolder.getCounter("URL.STATUS[" + location.getStatusFamily() + "]").inc();
             MetricsRegistryHolder.getCounter("DOMAIN[" + location.getDomain() + "][" + (location.getStatusFamily() != Family.SUCCESSFUL ? (location.getStatusFamily() == Family.REDIRECTION ? "REDIRECTION" : "ERROR") : "SUCCESS") + "]").inc();
             if (location.getStatusFamily() == Family.REDIRECTION) {
-                LOG_REDIRECTION.debug("{}, {}, {}, {}, {}", new Object[] { location.getDomain(), location.getUrl(), location.getStatusFamily(), location.getResponseStatusCode(), location.getRedirectsToUrl() });
+                LOG_REDIRECTION.debug("{}||{}||{}||{}||{}||{}", new Object[] { location.getDomain(), fileMeta.getIdentifier(), location.getUrl(), location.getStatusFamily(), location.getResponseStatusCode(), location.getRedirectsToUrl() });
             } else {
-                LOG_URL.debug("{}, {}, {}, {}", new Object[] { location.getDomain(), location.getUrl(), location.getStatusFamily(), location.getResponseStatusCode() });
+                LOG_URL.debug("{}||{}||{}||{}||{}", new Object[] { location.getDomain(), fileMeta.getIdentifier(), location.getUrl(), location.getStatusFamily(), location.getResponseStatusCode() });
             }
         }
 

@@ -2,10 +2,7 @@ package com.agroknow.linkchecker.domain;
 
 import javax.ws.rs.core.Response.Status.Family;
 
-import org.springframework.data.annotation.Id;
-
 public class URLMetadata {
-    @Id
     private String url;
     private String domain;
     private Family statusFamily;

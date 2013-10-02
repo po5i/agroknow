@@ -1,11 +1,11 @@
-package com.agroknow.domain;
+package com.agroknow.domain.parser.jflex;
 
 import java.util.HashSet ;
 import java.lang.StringBuilder ;
 
 %%
 
-%class MODSParser
+%class MODSParser %public
 %standalone
 %unicode
 

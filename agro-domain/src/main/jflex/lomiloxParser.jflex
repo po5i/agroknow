@@ -1,11 +1,11 @@
-package com.agroknow.domain;
+package com.agroknow.domain.parser.jflex;
 
 import java.util.HashSet ;
 import java.lang.StringBuilder ;
 
 %%
 
-%class LOMILOXParser
+%class LOMILOXParser %public
 %standalone
 %unicode
 

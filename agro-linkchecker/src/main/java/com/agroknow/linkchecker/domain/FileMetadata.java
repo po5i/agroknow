@@ -5,10 +5,7 @@ import java.util.List;
 
 import javax.ws.rs.core.Response.Status.Family;
 
-import org.springframework.data.annotation.Id;
-
 public class FileMetadata {
-    @Id
     private String identifier;
     private String filePath;
     private long lastCheckTimestamp;

@@ -1,6 +1,7 @@
 package com.agroknow.domain.parser;
 
 import com.agroknow.domain.SimpleMetadata;
+import com.agroknow.domain.parser.jflex.MODSParser;
 
 import java.io.FileInputStream;
 import java.io.IOException;

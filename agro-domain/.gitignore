@@ -20,6 +20,5 @@ classes
 nbactions*
 nb-configuration.xml
 
-# HSQL tempo files #
-b4tb-testdb.properties
-b4tb-testdb.script
+# Ignore ganerated java files from maven generate-sources phase #
+src/main/java/com/agroknow/domain/parser/jflex/

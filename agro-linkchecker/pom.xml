@@ -146,13 +146,11 @@
 	        <groupId>com.codahale.metrics</groupId>
 	        <artifactId>metrics-core</artifactId>
 	    </dependency>
-
-        <!-- Spring Data -->
-        <dependency>
-			<groupId>org.springframework.data</groupId>
-			<artifactId>spring-data-mongodb</artifactId>
+	    <!-- Spring Expressions -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-expression</artifactId>
 		</dependency>
-
         <!-- Deferred / Promise -->
         <dependency>
             <groupId>org.jdeferred</groupId>

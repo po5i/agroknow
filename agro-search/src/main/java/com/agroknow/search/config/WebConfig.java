@@ -1,12 +1,11 @@
 package com.agroknow.search.config;
 
-import com.agroknow.search.config.json.AgroObjectMapper;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJacksonHttpMessageConverter;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
@@ -20,9 +19,6 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
 @Configuration
 @ComponentScan({ "com.agroknow.search.web.controllers" })
 public class WebConfig extends WebMvcConfigurationSupport {
-
-    @Autowired
-    private AgroObjectMapper jacksonObjectMapper;
 
     public static final int UPLOAD_MAX_SIZE = 10485760;
 
@@ -52,9 +48,8 @@ public class WebConfig extends WebMvcConfigurationSupport {
 
     @Override
     public void configureMessageConverters(final List<HttpMessageConverter<?>> converters) {
-        jacksonObjectMapper.setup();
-        MappingJacksonHttpMessageConverter jacksonConverter = new MappingJacksonHttpMessageConverter();
-        jacksonConverter.setObjectMapper(jacksonObjectMapper);
+        MappingJackson2HttpMessageConverter jacksonConverter = new MappingJackson2HttpMessageConverter();
+        //jacksonConverter.setObjectMapper();
         converters.add(jacksonConverter);
     }
 }

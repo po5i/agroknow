@@ -10,15 +10,15 @@ import java.util.Map;
  *
  * @author aggelos
  */
-public class SearchRequest {
+public class AgroSearchRequest {
 
     private Map<String,String> searchFields = new HashMap<String,String>();
-    private List<String> sortBy = new ArrayList<String>(2);
-    private String sortOrder;
+    private String sortByField;
+    private String sortOrder = "asc";
     private List<String> facetFields = new ArrayList<String>(6);
-    private int pageSize;
-    private int page;
-    private int facetSize;
+    private int facetSize = 10;
+    private int pageSize = 10;
+    private int page = 1;
 
     public Map<String, String> getSearchFields() {
         return searchFields;
@@ -32,16 +32,12 @@ public class SearchRequest {
         this.searchFields.put(field, search);
     }
 
-    public List<String> getSortBy() {
-        return sortBy;
+    public String getSortByField() {
+        return sortByField;
     }
 
-    public void setSortBy(List<String> sortBy) {
-        this.sortBy = sortBy;
-    }
-
-    public void addSortBy(String field) {
-        this.sortBy.add(field);
+    public void setSortByField(String sortByField) {
+        this.sortByField = sortByField;
     }
 
     public String getSortOrder() {

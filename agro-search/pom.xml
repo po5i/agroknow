@@ -17,6 +17,12 @@
     </properties>
 
     <dependencies>
+        <!-- Agro Domain -->
+        <dependency>
+            <groupId>com.agroknow</groupId>
+            <artifactId>agro-domain</artifactId>
+        </dependency>
+
         <!-- Logging SLF4J -->
         <dependency>
             <groupId>org.slf4j</groupId>

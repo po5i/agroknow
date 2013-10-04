@@ -19,9 +19,13 @@
             <id>apache-snapshots</id>
             <name>apache-snapshots</name>
             <url>http://repository.apache.org/snapshots</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+        <repository>
+            <id>spring-snapshot</id>
+            <name>Spring Maven SNAPSHOT Repository</name>
+            <url>http://repo.springsource.org/libs-snapshot</url>
+            <snapshots><enabled>true</enabled></snapshots>
         </repository>
     </repositories>
 
@@ -44,6 +48,13 @@
                 <artifactId>junit</artifactId>
                 <version>3.8.1</version>
                 <scope>test</scope>
+            </dependency>
+
+            <!-- Agro Projects -->
+            <dependency>
+                <groupId>com.agroknow</groupId>
+                <artifactId>agro-domain</artifactId>
+                <version>${project.version}</version>
             </dependency>
 
             <!-- Logging & Metrics -->

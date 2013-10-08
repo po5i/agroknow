@@ -1,6 +1,7 @@
 package com.agroknow.indexer;
 
 import com.agroknow.domain.parser.factory.SimpleMetadataParserFactory;
+import com.agroknow.domain.parser.json.CustomObjectMapper;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
@@ -66,18 +67,24 @@ public class App {
         File rootDirectory = FileUtils.getFile(options.rootDirectory);
         ArrayList<File> files = new ArrayList(FileUtils.listFiles(rootDirectory, new String[] { "json" }, true));
         int filesSize = files.size();
+        MetricsRegistryHolder.getCounter("FILES[ALL]").inc(lastCheck);
+
         //TODO add metrics for files to process
         LOG.info("Found {} files to process.", filesSize);
 
         // create the elasticsearch Client and connect it to the cluster
         Client esClient = getElasticSearchClient(options.esClusterName, options.esClusterNodes.split(","));
 
+        // create the ObjectMapper used for json serialization/deserialization
+        CustomObjectMapper objectMapper = new CustomObjectMapper();
+        objectMapper.init();
+
         // create the threadpool and submit job for processing
         // options.bulkSize number of files
         ExecutorService threadPool = Executors.newFixedThreadPool(4, new BasicThreadFactory.Builder().namingPattern("bulkindexworker-%d").build());
         int step = options.bulkSize;
         for(int i=0; i<filesSize; i+=step) {
-            threadPool.submit(new BulkIndexWorker(files.subList(i, Math.min(i+step, filesSize)), options.fileFormat, charset, lastCheck, esClient));
+            threadPool.submit(new BulkIndexWorker(files.subList(i, Math.min(i+step, filesSize)), options.fileFormat, charset, objectMapper, lastCheck, esClient));
         }
 
         // close everything and go to sleep :)
@@ -94,7 +101,8 @@ public class App {
         // save last-check time
         FileUtils.writeStringToFile(FileUtils.getFile(options.runtimeDirectory, "last-check"), String.valueOf(currentCheckTime), charset);
 
-        //TODO print metrics for succeeded/failed index requests
+        //print metrics for succeeded/failed index requests and exit
+        MetricsRegistryHolder.report();
         LOG.info("All {} files were processed.", filesSize);
     }
 

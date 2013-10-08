@@ -119,7 +119,6 @@
 		<dependency>
 			<groupId>com.agroknow</groupId>
 			<artifactId>agro-domain</artifactId>
-			<version>1.0-SNAPSHOT</version>
 		</dependency>
         <dependency>
 			<groupId>javax.ws.rs</groupId>
@@ -147,11 +146,13 @@
 	        <groupId>com.codahale.metrics</groupId>
 	        <artifactId>metrics-core</artifactId>
 	    </dependency>
+
 	    <!-- Spring Expressions -->
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-expression</artifactId>
 		</dependency>
+        
         <!-- Deferred / Promise -->
         <dependency>
             <groupId>org.jdeferred</groupId>

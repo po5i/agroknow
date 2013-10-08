@@ -70,7 +70,7 @@ public class App {
         LOG.info("Found {} files to process.", filesSize);
 
         // create the elasticsearch Client and connect it to the cluster
-        Client esClient = getElasticSearchClient("agroknow", new String[]{"agro01.keevosh.gr:9300","agro02.keevosh.gr:9300","agro03.keevosh.gr:9300"});
+        Client esClient = getElasticSearchClient(options.esClusterName, options.esClusterNodes.split(","));
 
         // create the threadpool and submit job for processing
         // options.bulkSize number of files
@@ -115,6 +115,8 @@ public class App {
             OPTS.addOption(Option.builder("r").longOpt("runtime-directory").hasArg(true).required(false).desc("the folder where the pid and last-check files are located\n[default /opt/agroknow/run]").build());
             OPTS.addOption(Option.builder("c").longOpt("charset").hasArg(true).required(false).desc("the charset which files are written with\n[default UTF-8]").build());
             OPTS.addOption(Option.builder("b").longOpt("bulk-size").hasArg(true).required(false).desc("the bulk indexing size\n[default 1000]").build());
+            OPTS.addOption(Option.builder().longOpt("es-name").hasArg(true).required(false).desc("the elasticsearch cluster name [default agroknow]").build());
+            OPTS.addOption(Option.builder().longOpt("es-nones").hasArg(true).required(false).desc("the elasticsearch cluster nodes [default localhost:9300]").build());
         }
         return OPTS;
     }
@@ -140,6 +142,8 @@ public class App {
             indexerOptions.runtimeDirectory = cli.getOptionValue(options.getOption("runtime-directory").getOpt(), "/opt/agroknow/run");
             indexerOptions.charset = cli.getOptionValue(options.getOption("charset").getOpt(), "UTF-8");
             indexerOptions.bulkSize = Integer.valueOf(cli.getOptionValue(options.getOption("bulk-size").getOpt(), "1000"));
+            indexerOptions.esClusterName = cli.getOptionValue(options.getOption("es-name").getOpt(), "agroknow");
+            indexerOptions.esClusterNodes = cli.getOptionValue(options.getOption("es-nodes").getOpt(), "localhost:9300");
 
             // validate indexerOptions
             indexerOptions.validate();

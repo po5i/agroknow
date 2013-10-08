@@ -21,6 +21,9 @@ public class IndexerOptions {
     public String charset;
     public int bulkSize;
 
+    public String esClusterName;
+    public String esClusterNodes;
+
     public void validate() throws ParseException {
         // check that file format is valid
         Arrays.sort(SUPPORTED_FILE_FORMATS);

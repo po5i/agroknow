@@ -113,10 +113,10 @@ public class App {
             OPTS.addOption(Option.builder("t").longOpt("file-format").hasArg(true).required(false).desc("the file formats agro-indexer is going to check\n[default akif]").build());
             OPTS.addOption(Option.builder("d").longOpt("root-directory").hasArg(true).required(false).desc("the folder where the files are located\n[default /opt/agroknow/data/akif]").build());
             OPTS.addOption(Option.builder("r").longOpt("runtime-directory").hasArg(true).required(false).desc("the folder where the pid and last-check files are located\n[default /opt/agroknow/run]").build());
-            OPTS.addOption(Option.builder("c").longOpt("charset").hasArg(true).required(false).desc("the charset which files are written with\n[default UTF-8]").build());
+            OPTS.addOption(Option.builder("C").longOpt("charset").hasArg(true).required(false).desc("the charset which files are written with\n[default UTF-8]").build());
             OPTS.addOption(Option.builder("b").longOpt("bulk-size").hasArg(true).required(false).desc("the bulk indexing size\n[default 1000]").build());
-            OPTS.addOption(Option.builder().longOpt("es-name").hasArg(true).required(false).desc("the elasticsearch cluster name [default agroknow]").build());
-            OPTS.addOption(Option.builder().longOpt("es-nones").hasArg(true).required(false).desc("the elasticsearch cluster nodes [default localhost:9300]").build());
+            OPTS.addOption(Option.builder("c").longOpt("es-name").hasArg(true).required(false).desc("the elasticsearch cluster name [default agroknow]").build());
+            OPTS.addOption(Option.builder("n").longOpt("es-nones").hasArg(true).required(false).desc("the elasticsearch cluster nodes [default localhost:9300]").build());
         }
         return OPTS;
     }

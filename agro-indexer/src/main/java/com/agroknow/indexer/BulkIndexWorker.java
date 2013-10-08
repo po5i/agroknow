@@ -1,5 +1,7 @@
 package com.agroknow.indexer;
 
+import com.agroknow.domain.Akif;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -31,6 +33,7 @@ public class BulkIndexWorker implements Runnable {
     private Charset charset;
     private long lastCheck;
     private Client esClient;
+    private ObjectMapper objectMapper;
 
     /**
      * BulkIndexWorker is used to parse a list of files and submit them to elasticsearch
@@ -39,11 +42,11 @@ public class BulkIndexWorker implements Runnable {
      *
      * @param files The list of Files to process
      * @param fileFormat The data format of those files
-     * @param lastCheck The timestamp of indexer's last run
+     * @param objectMapper  The objectMapper to use to serialize/deserialize json
      * @param esClient The elasticsearch client to use for (bulk) indexing
      */
-    public BulkIndexWorker(List<File> files, String fileFormat, Client esClient) {
-        this(files, fileFormat, Charset.forName("UTF-8"), new DateTime().withZone(DateTimeZone.UTC).getMillis(), esClient);
+    public BulkIndexWorker(List<File> files, String fileFormat, ObjectMapper objectMapper, Client esClient) {
+        this(files, fileFormat, Charset.forName("UTF-8"), objectMapper, new DateTime().withZone(DateTimeZone.UTC).getMillis(), esClient);
     }
 
     /**
@@ -53,13 +56,15 @@ public class BulkIndexWorker implements Runnable {
      * @param files The list of Files to process
      * @param fileFormat The data format of those files
      * @param charset The charset to read files with
+     * @param objectMapper  The objectMapper to use to serialize/deserialize json
      * @param lastCheck The timestamp of indexer's last run
      * @param esClient The elasticsearch client to use for (bulk) indexing
      */
-    public BulkIndexWorker(List<File> files, String fileFormat, Charset charset, long lastCheck, Client esClient) {
+    public BulkIndexWorker(List<File> files, String fileFormat, Charset charset, ObjectMapper objectMapper, long lastCheck, Client esClient) {
         this.files = files;
         this.fileFormat = fileFormat;
         this.charset = charset;
+        this.objectMapper = objectMapper;
         this.lastCheck = lastCheck;
         this.esClient = esClient;
 
@@ -82,13 +87,28 @@ public class BulkIndexWorker implements Runnable {
         BulkRequestBuilder bulkRequest = esClient.prepareBulk();
 
         // add documents to bulk request
+        String source;
+        Akif doc;
         for(File f : files) {
             LOG.debug("PROCESS file: {}", f.getAbsolutePath());
 
+            // check if file changed after lastCheck
+            if(this.lastCheck > f.lastModified()) {
+                continue;
+            }
+
+            // if file is touched after the last check, parse it to Akif.class
+            // and compare Akif.lastUpdateDate with lastCheck
+            source = FileUtils.readFileToString(f, charset);
+            doc = objectMapper.reader(Akif.class).readValue(source);
+            if(this.lastCheck > doc.getLastUpdateDate().getTime()) {
+                continue;
+            }
+
             // create an indexRequest and add it to the bulk
-            String id = FilenameUtils.getBaseName(f.getAbsolutePath());
+            String id = doc.getIdentifier();
             IndexRequestBuilder indexRequestBuilder = esClient.prepareIndex(fileFormat, fileFormat, id)
-                                                              .setSource(FileUtils.readFileToString(f, charset));
+                                                              .setSource(source);
             bulkRequest.add(indexRequestBuilder);
         }
 
@@ -97,12 +117,15 @@ public class BulkIndexWorker implements Runnable {
         if (bulkResponse.hasFailures()) {
             for (BulkItemResponse item : bulkResponse.getItems()) {
                 if (item.isFailed()) {
-                    //TODO add failure metrics
-                    LOG.error("Document [{}] failed to index", item.getId());
+                    LOG.error("Document [{}] failed to get indexed", item.getId());
+                    MetricsRegistryHolder.getCounter("FILES[FAILED]").inc();
+                } else {
+                    MetricsRegistryHolder.getCounter("FILES[INDEXED]").inc();
                 }
             }
+        } else {
+            MetricsRegistryHolder.getCounter("FILES[INDEXED]").inc(bulkResponse.getItems().length);
         }
-        //TODO add success metrics
 
         LOG.debug("END bulk indexer");
     }

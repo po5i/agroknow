@@ -29,7 +29,7 @@ import org.springframework.web.servlet.DispatcherServlet;
 public class AgroSearchInitializer implements WebApplicationInitializer {
 
     private static final Logger LOG = LoggerFactory.getLogger(AgroSearchInitializer.class);
-    private static String DEFAULT_ENV = "dev";
+    private static final String DEFAULT_ENV = "dev";
 
     @Override
     public void onStartup(ServletContext container) {
@@ -57,13 +57,13 @@ public class AgroSearchInitializer implements WebApplicationInitializer {
         //add the servlet with the web context
         ServletRegistration.Dynamic dispatcher = container.addServlet("default", new DispatcherServlet(webContext));
         dispatcher.setLoadOnStartup(1);
-        dispatcher.addMapping("/");
+        dispatcher.addMapping("/search-api");
 
         //add encoding filter
         CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
         encodingFilter.setEncoding("UTF-8");
         FilterRegistration.Dynamic encodingRegisteredFilter = container.addFilter("characterEncodingFilter", encodingFilter);
-        encodingRegisteredFilter.addMappingForUrlPatterns(null, false, "/*");
+        encodingRegisteredFilter.addMappingForUrlPatterns(null, false, "/search-api/*");
 
         //add a shutdown listener that closes spring web and parent contexts
         container.addListener(ContextCleanupListener.class);

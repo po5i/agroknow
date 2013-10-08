@@ -1,9 +1,9 @@
 package com.agroknow.indexer;
 
+import com.agroknow.domain.parser.factory.SimpleMetadataParserFactory;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.Arrays;
-import net.zettadata.simpleparser.SimpleMetadataFactory;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 
@@ -13,7 +13,7 @@ import org.apache.commons.io.FileUtils;
  */
 public class IndexerOptions {
 
-    private static final String[] SUPPORTED_FILE_FORMATS = { SimpleMetadataFactory.AKIF, SimpleMetadataFactory.AGRIF };
+    private static final String[] SUPPORTED_FILE_FORMATS = { SimpleMetadataParserFactory.AKIF, SimpleMetadataParserFactory.AGRIF };
 
     public String fileFormat;
     public String rootDirectory;

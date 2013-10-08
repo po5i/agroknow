@@ -1,5 +1,6 @@
 package com.agroknow.indexer;
 
+import com.agroknow.domain.parser.factory.SimpleMetadataParserFactory;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
@@ -7,7 +8,6 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import net.zettadata.simpleparser.SimpleMetadataFactory;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -135,7 +135,7 @@ public class App {
             }
 
             // set indexerOptions argument or default values
-            indexerOptions.fileFormat = cli.getOptionValue(options.getOption("file-format").getOpt(), SimpleMetadataFactory.AKIF);
+            indexerOptions.fileFormat = cli.getOptionValue(options.getOption("file-format").getOpt(), SimpleMetadataParserFactory.AKIF);
             indexerOptions.rootDirectory = cli.getOptionValue(options.getOption("root-directory").getOpt(), "/opt/agroknow/data/akif");
             indexerOptions.runtimeDirectory = cli.getOptionValue(options.getOption("runtime-directory").getOpt(), "/opt/agroknow/run");
             indexerOptions.charset = cli.getOptionValue(options.getOption("charset").getOpt(), "UTF-8");

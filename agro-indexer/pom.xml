@@ -108,8 +108,8 @@
 
         <!-- Parsing -->
 		<dependency>
-			<groupId>net.zettadata</groupId>
-			<artifactId>simple-parser</artifactId>
+			<groupId>com.agroknow</groupId>
+			<artifactId>agro-domain</artifactId>
         </dependency>
 
         <!-- ElasticSearch -->

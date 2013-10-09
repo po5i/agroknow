@@ -67,7 +67,7 @@ public class App {
         File rootDirectory = FileUtils.getFile(options.rootDirectory);
         ArrayList<File> files = new ArrayList(FileUtils.listFiles(rootDirectory, new String[] { "json" }, true));
         int filesSize = files.size();
-        MetricsRegistryHolder.getCounter("FILES[ALL]").inc(lastCheck);
+        MetricsRegistryHolder.getCounter("FILES[ALL]").inc(filesSize);
 
         //TODO add metrics for files to process
         LOG.info("Found {} files to process.", filesSize);

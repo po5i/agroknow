@@ -3,10 +3,10 @@ package com.agroknow.indexer;
 import com.agroknow.domain.Akif;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -94,37 +94,57 @@ public class BulkIndexWorker implements Runnable {
 
             // check if file changed after lastCheck
             if(this.lastCheck > f.lastModified()) {
+                MetricsRegistryHolder.getCounter("FILES[SKIPPED]").inc();
                 continue;
             }
+
+            // read the file contents into source string
+            source = FileUtils.readFileToString(f, charset);
 
             // if file is touched after the last check, parse it to Akif.class
-            // and compare Akif.lastUpdateDate with lastCheck
-            source = FileUtils.readFileToString(f, charset);
-            doc = objectMapper.reader(Akif.class).readValue(source);
-            if(this.lastCheck > doc.getLastUpdateDate().getTime()) {
+            try {
+                doc = objectMapper.reader(Akif.class).readValue(source);
+            } catch(IOException ex) {
+                LOG.error("File [{}] failed to get parsed", f.getCanonicalPath());
+                MetricsRegistryHolder.getCounter("FILES[FAILED]").inc();
                 continue;
             }
 
+//INFO: lastUpdateDate is currently do not get involved when checking dates
+//      for now because it does not contain a datetime value but only a date.
+//      We'll keep this snippet here just in case we agree to change the
+//      lastUpdateDate to datetime. If not, it will be removed in a later commit.
+//
+//            // and compare Akif.lastUpdateDate with lastCheck
+//            if(this.lastCheck > doc.getLastUpdateDate().getTime()) {
+//                MetricsRegistryHolder.getCounter("FILES[SKIPPED]").inc();
+//                continue;
+//            }
+
             // create an indexRequest and add it to the bulk
-            String id = doc.getIdentifier();
+            String id = doc.getIdentifier(); // id is also in the filename and can be read with FilenameUtils.getBaseName(f.getAbsolutePath());
             IndexRequestBuilder indexRequestBuilder = esClient.prepareIndex(fileFormat, fileFormat, id)
                                                               .setSource(source);
             bulkRequest.add(indexRequestBuilder);
         }
 
-        // read data from bulkResponse
-        BulkResponse bulkResponse = bulkRequest.execute().actionGet();
-        if (bulkResponse.hasFailures()) {
-            for (BulkItemResponse item : bulkResponse.getItems()) {
-                if (item.isFailed()) {
-                    LOG.error("Document [{}] failed to get indexed", item.getId());
-                    MetricsRegistryHolder.getCounter("FILES[FAILED]").inc();
-                } else {
-                    MetricsRegistryHolder.getCounter("FILES[INDEXED]").inc();
+        // if we added documents in the bulk
+        // execute the request and read data
+        // from bulkResponse
+        if(bulkRequest.numberOfActions() > 0) {
+            BulkResponse bulkResponse = bulkRequest.execute().actionGet();
+            if (bulkResponse.hasFailures()) {
+                for (BulkItemResponse item : bulkResponse.getItems()) {
+                    if (item.isFailed()) {
+                        LOG.error("Document [{}] failed to get indexed", item.getId());
+                        MetricsRegistryHolder.getCounter("FILES[FAILED]").inc();
+                    } else {
+                        MetricsRegistryHolder.getCounter("FILES[INDEXED]").inc();
+                    }
                 }
+            } else {
+                MetricsRegistryHolder.getCounter("FILES[INDEXED]").inc(bulkResponse.getItems().length);
             }
-        } else {
-            MetricsRegistryHolder.getCounter("FILES[INDEXED]").inc(bulkResponse.getItems().length);
         }
 
         LOG.debug("END bulk indexer");

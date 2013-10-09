@@ -1,12 +1,12 @@
 #!/bin/bash
 
-curl -XPUT 'http://agro01.keevosh.gr:9200/akif/' -d '{
+curl -XPUT 'http://localhost:9200/akif/' -d '{
     "settings" : {
         "number_of_shards" : 3,
         "number_of_replicas" : 0,
-        
+
         "routing.allocation.include.zone" : "main",
-        
+
         "query.default_field" : "_all"
     },
 
@@ -25,7 +25,7 @@ curl -XPUT 'http://agro01.keevosh.gr:9200/akif/' -d '{
                             }
                         }
                     }
-                },                
+                },
                 {
                     "template_taxonPaths" : {
                         "path_match" : "tokenBlock.taxonPaths.*",
@@ -51,38 +51,38 @@ curl -XPUT 'http://agro01.keevosh.gr:9200/akif/' -d '{
                     }
                 }
             ],
-            
+
             "_id" : {
                 "path" : "identifier"
             },
-            
-            
-            "_source" : { 
+
+
+            "_source" : {
                 "enabled" : true,
                 "compress" : true,
                 "compress_threshold" : "1536b"
             },
-            
+
             "_all" : {
                 "enabled" : true
             },
-            
+
             "_routing" : {
                 "required" : true,
                 "path" : "set"
             },
-            
+
             "_timestamp" : {
                 "enabled" : true,
                 "path" : "lastUpdateDate",
                 "format" : "date"
             },
-            
+
             "properties" : {
                 "generateThumbnail" : {
                     "type" : "boolean",
                     "include_in_all" : false
-                },                
+                },
                 "status" : {
                     "type" : "string"
                 },
@@ -98,7 +98,7 @@ curl -XPUT 'http://agro01.keevosh.gr:9200/akif/' -d '{
                     "format" : "date",
                     "include_in_all" : false
                 },
-                
+
                 "languageBlocks" : {
                     "type" : "object",
                     "properties" : {
@@ -120,22 +120,22 @@ curl -XPUT 'http://agro01.keevosh.gr:9200/akif/' -d '{
                         }
                     }
                 },
-                
+
                 "tokenBlock" : {
                     "properties" : {
                         "ageRange" : { "type" : "string" },
                         "contexts" : { "type" : "string", "index_name" : "context" },
                         "endUserRoles" : { "type" : "string", "index_name" : "endUserRole" },
                         "learningResourceTypes" : { "type" : "string", "index_name" : "learningResourceType" },
-                        "taxonPaths" : { 
+                        "taxonPaths" : {
                             "type" : "object",
                             "include_in_all" : false,
                             "enabled" : false
                         }
                     }
                 },
-                
-                
+
+
                 "expressions" : {
                     "properties" : {
                         "language" : { "type" : "string" },
@@ -148,9 +148,9 @@ curl -XPUT 'http://agro01.keevosh.gr:9200/akif/' -d '{
                                 "items" : {
                                     "properties" : {
                                         "url": { "type" : "string" },
-                                        "broken" : { 
+                                        "broken" : {
                                             "type" : "boolean",
-                                            "include_in_all" : false 
+                                            "include_in_all" : false
                                         }
                                     }
                                 }
@@ -159,11 +159,11 @@ curl -XPUT 'http://agro01.keevosh.gr:9200/akif/' -d '{
                     }
                 },
 
-                
+
                 "rights" : {
                     "properties" : {
                         "url" : { "type" : "string" },
-                        "description" : { 
+                        "description" : {
                             "type" : "object",
                             "properties" : {
                                 "en": { "type" : "string", "analyzer" : "english" },
@@ -172,8 +172,8 @@ curl -XPUT 'http://agro01.keevosh.gr:9200/akif/' -d '{
                         }
                     }
                 },
-                
-                
+
+
                 "contributors" : {
                     "properties" : {
                         "date" : {
@@ -186,7 +186,7 @@ curl -XPUT 'http://agro01.keevosh.gr:9200/akif/' -d '{
                         "description" : { "type" : "object" }
                     }
                 },
-                
+
                 "learningObjectives" : {
                     "properties" : {
                         "properties" : {

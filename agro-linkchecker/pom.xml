@@ -59,7 +59,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>com.agroknow.linkchecker.AppRunner</mainClass>
+							<mainClass>com.agroknow.linkchecker.App</mainClass>
 							<classpathPrefix>lib/</classpathPrefix>
                             <useUniqueVersions>false</useUniqueVersions>
 						</manifest>
@@ -152,7 +152,7 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-expression</artifactId>
 		</dependency>
-        
+
         <!-- Deferred / Promise -->
         <dependency>
             <groupId>org.jdeferred</groupId>

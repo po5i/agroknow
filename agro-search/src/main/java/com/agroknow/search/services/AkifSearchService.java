@@ -5,13 +5,9 @@ import com.agroknow.search.domain.AgroSearchRequest;
 import com.agroknow.search.domain.AgroSearchResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.get.MultiGetItemResponse;
@@ -203,9 +199,9 @@ public class AkifSearchService {
         if(value.split(" ").length > 1) {
             q = QueryBuilders.matchPhraseQuery(field, value);
         } else {
-            q = QueryBuilders.termQuery(field, value);
+            q = QueryBuilders.matchQuery(field, value);
         }
         return q;
     }
-    
+
 }

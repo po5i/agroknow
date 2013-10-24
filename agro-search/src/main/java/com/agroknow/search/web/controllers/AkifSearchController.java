@@ -6,7 +6,6 @@ import com.agroknow.search.domain.AgroSearchResponse;
 import com.agroknow.search.services.AkifSearchService;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -66,7 +65,7 @@ public class AkifSearchController {
             } else if("page_size".equalsIgnoreCase(param)) {
                 searchReq.setPageSize(Integer.parseInt(paramValue));
             } else {
-                searchReq.addSearchFields(StringUtils.lowerCase(param), StringUtils.trim(paramValue));
+                searchReq.addSearchFields(param, StringUtils.trim(paramValue));
             }
         }
 

@@ -105,7 +105,7 @@ public class BulkIndexWorker implements Runnable {
             try {
                 doc = objectMapper.reader(Akif.class).readValue(source);
             } catch(IOException ex) {
-                LOG.error("File [{}] failed to get parsed", f.getCanonicalPath());
+                LOG.error("File [{}] failed to get parsed: {}", f.getCanonicalPath(), ex.getMessage());
                 MetricsRegistryHolder.getCounter("FILES[FAILED]").inc();
                 continue;
             }
@@ -136,7 +136,7 @@ public class BulkIndexWorker implements Runnable {
             if (bulkResponse.hasFailures()) {
                 for (BulkItemResponse item : bulkResponse.getItems()) {
                     if (item.isFailed()) {
-                        LOG.error("Document [{}] failed to get indexed", item.getId());
+                        LOG.error("Document [{}] failed to get indexed: {}", item.getId(), item.getFailureMessage());
                         MetricsRegistryHolder.getCounter("FILES[FAILED]").inc();
                     } else {
                         MetricsRegistryHolder.getCounter("FILES[INDEXED]").inc();

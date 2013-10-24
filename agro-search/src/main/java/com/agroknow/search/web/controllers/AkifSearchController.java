@@ -6,9 +6,11 @@ import com.agroknow.search.domain.AgroSearchResponse;
 import com.agroknow.search.services.AkifSearchService;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.stereotype.Controller;
@@ -50,7 +52,7 @@ public class AkifSearchController {
             paramValue = request.getParameter(param);
 
             if("q".equalsIgnoreCase(param)) {
-                searchReq.addSearchFields("_all", paramValue);
+                searchReq.addSearchFields("_all", StringUtils.trim(paramValue));
             } else if("sort_by".equalsIgnoreCase(param)) {
                 searchReq.setSortByField(paramValue);
             } else if("sort_order".equalsIgnoreCase(param) && "desc".equalsIgnoreCase(paramValue)) {
@@ -64,9 +66,7 @@ public class AkifSearchController {
             } else if("page_size".equalsIgnoreCase(param)) {
                 searchReq.setPageSize(Integer.parseInt(paramValue));
             } else {
-                if(!param.startsWith("org.springframework") && !param.startsWith("<html")) {
-                    searchReq.addSearchFields(param, paramValue);
-                }
+                searchReq.addSearchFields(StringUtils.lowerCase(param), StringUtils.trim(paramValue));
             }
         }
 

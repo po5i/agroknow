@@ -1,3 +1,3 @@
 #!/bin/bash
 
-curl -XDELETE 'http://localhost:9200/akif/'
+curl -XDELETE "http://$1/akif/"

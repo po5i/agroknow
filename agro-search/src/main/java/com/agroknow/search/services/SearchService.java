@@ -1,12 +1,14 @@
 package com.agroknow.search.services;
 
-import com.agroknow.domain.Akif;
+import com.agroknow.domain.InternalFormat;
 import com.agroknow.search.domain.AgroSearchRequest;
 import com.agroknow.search.domain.AgroSearchResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
@@ -25,14 +27,13 @@ import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.Facets;
 import org.elasticsearch.search.sort.SortOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 /**
  *
  * @author aggelos
+ * @param <T>
  */
-@Component
-public class AkifSearchService {
+public class SearchService<T extends InternalFormat> {
 
     @Autowired
     private TransportClient esClient;
@@ -40,11 +41,14 @@ public class AkifSearchService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    public AgroSearchResponse<Akif> search(AgroSearchRequest req) throws IOException {
-        AgroSearchResponse<Akif> res = new AgroSearchResponse<Akif>();
+    private String fileFormat;
+    private Class<T> fileFormatClass;
+
+    public AgroSearchResponse<T> search(AgroSearchRequest req) throws IOException {
+        AgroSearchResponse<T> res = new AgroSearchResponse<T>();
 
         // create the SearchRequestBuilder
-        SearchRequestBuilder searchReqBuilder = esClient.prepareSearch("akif").setTypes("akif");
+        SearchRequestBuilder searchReqBuilder = esClient.prepareSearch(getFileFormat()).setTypes(getFileFormat());
 
         // setup query
         QueryBuilder queryBuilder;
@@ -90,14 +94,14 @@ public class AkifSearchService {
         // execute the request and get the response
         SearchResponse response = searchReqBuilder.execute().actionGet();
 
-        // parse the response into AgroSearchResponse<Akif>
+        // parse the response into AgroSearchResponse<T>
         Iterator<SearchHit> hitsIter = response.getHits().iterator();
         SearchHit hit;
         while (hitsIter.hasNext()) {
             hit = hitsIter.next();
 
             String source = hit.getSourceAsString();
-            Akif doc = objectMapper.reader(Akif.class).readValue(source);
+            T doc = objectMapper.reader(getFileFormatClass()).readValue(source);
             res.addResult(doc);
         }
 
@@ -120,24 +124,35 @@ public class AkifSearchService {
     }
 
     /**
-     * Fetch the akif objects of the given ids. When no ids argument an empty
+     *
+     * @param req
+     * @return
+     * @throws IOException
+     */
+    public AgroSearchResponse<T> autocomplete(AgroSearchRequest req) throws IOException {
+        return null;
+    }
+
+    /**
+     * Fetch the akif/agrif objects of the given ids. When no ids argument an empty
      * response is returned with no results.
      *
      * @param ids
      * @return
      * @throws IOException
      */
-    public AgroSearchResponse<Akif> fetch(String[] ids) throws IOException {
-        AgroSearchResponse<Akif> res = new AgroSearchResponse<Akif>();
+    public AgroSearchResponse<T> fetch(String[] ids) throws IOException {
+        AgroSearchResponse<T> res = new AgroSearchResponse<T>();
         if (ArrayUtils.isEmpty(ids)) { // return empty res when no ids
             return res;
         }
 
-        // create the MultiGetRequest for akif ids given
+        // create the MultiGetRequest for akif/agrif ids given
         MultiGetRequestBuilder mGetBuilder = esClient.prepareMultiGet();
         MultiGetRequest.Item item;
+        String format = getFileFormat();
         for (String id : ids) {
-            item = new MultiGetRequest.Item("akif", "akif", id);
+            item = new MultiGetRequest.Item(format, format, id);
             mGetBuilder.add(item);
         }
 
@@ -153,7 +168,7 @@ public class AkifSearchService {
                 continue;
             }
             String source = itemResponse.getResponse().getSourceAsString();
-            Akif doc = objectMapper.reader(Akif.class).readValue(source);
+            T doc = objectMapper.reader(getFileFormatClass()).readValue(source);
             res.increaseTotal();
             res.addResult(doc);
         }
@@ -164,6 +179,13 @@ public class AkifSearchService {
 
     private QueryBuilder parsePlainQueryString(String field, String value) {
         QueryBuilder q;
+
+        // check for match_all query
+        if("_all".equals(field) && "*".equals(value)) {
+            return QueryBuilders.matchAllQuery();
+        }
+
+        // try to parse a query with AND/OR operatators (if any)
         String[] andParts = value.split("AND");
         if(andParts.length == 1) {
             q = parseORQueryString(field, value);
@@ -202,6 +224,20 @@ public class AkifSearchService {
             q = QueryBuilders.matchQuery(field, value);
         }
         return q;
+    }
+
+    private String getFileFormat() {
+        if (fileFormat == null) {
+            fileFormat = getFileFormatClass().getSimpleName().toLowerCase(Locale.ENGLISH);
+        }
+        return fileFormat;
+    }
+
+    private Class<T> getFileFormatClass() {
+        if (fileFormatClass == null) {
+            this.fileFormatClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        }
+        return fileFormatClass;
     }
 
 }

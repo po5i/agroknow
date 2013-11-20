@@ -1,9 +1,6 @@
-package com.agroknow.domain;
+package com.agroknow.domain.akif;
 
-import com.agroknow.domain.parser.json.CustomJsonDateDeserializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-
-import java.util.Date;
+import com.agroknow.domain.InternalFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -11,25 +8,19 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 
-public class Akif extends SimpleMetadata {
+public class Akif extends InternalFormat {
 
     private static final long serialVersionUID = 1L;
-    private Date creationDate;
-    private Date lastUpdateDate;
+
     private boolean generateThumbnail;
-    private String status;
-    private String set;
-    private String identifier;
     private List<Contributor> contributors;
     private TokenBlock tokenBlock;
     private Map<String, LanguageBlock> languageBlocks;
-    private Rights rights;
+    private Right rights;
     private List<Expression> expressions;
     private Map<String, List<String>> learningObjectives;
 
-    public Akif() {
-
-    }
+    public Akif() {}
 
     public Akif(Set<String> locations, Set<String> identifiers) {
         super(locations, identifiers);
@@ -38,7 +29,7 @@ public class Akif extends SimpleMetadata {
     /**
      * @return the rights
      */
-    public Rights getRights() {
+    public Right getRights() {
         return rights;
     }
 
@@ -46,7 +37,7 @@ public class Akif extends SimpleMetadata {
      * @param rights
      *            the rights to set
      */
-    public void setRights(Rights rights) {
+    public void setRights(Right rights) {
         this.rights = rights;
     }
 
@@ -93,57 +84,11 @@ public class Akif extends SimpleMetadata {
         return locations;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see com.agroknow.domain.SimpleMetadata#getIdentifiers()
-     */
-    @Override
-    public Set<String> getIdentifiers() {
-        Set<String> result = new HashSet<String>(1);
-        result.add(this.getIdentifier());
-        return result;
-    }
-
-    /**
-     * @return the creationDate
-     */
-    public Date getCreationDate() {
-        return creationDate;
-    }
-
-    /**
-     * @return the lastUpdateDate
-     */
-    public Date getLastUpdateDate() {
-        return lastUpdateDate;
-    }
-
     /**
      * @return the generateThumbnail
      */
     public boolean isGenerateThumbnail() {
         return generateThumbnail;
-    }
-
-    /**
-     * @return the status
-     */
-    public String getStatus() {
-        return status;
-    }
-
-    /**
-     * @return the set
-     */
-    public String getSet() {
-        return set;
-    }
-
-    /**
-     * @return the identifier
-     */
-    public String getIdentifier() {
-        return identifier;
     }
 
     /**
@@ -175,53 +120,11 @@ public class Akif extends SimpleMetadata {
     }
 
     /**
-     * @param creationDate
-     *            the creationDate to set
-     */
-    @JsonDeserialize(using=CustomJsonDateDeserializer.class)
-    public void setCreationDate(Date creationDate) {
-        this.creationDate = creationDate;
-    }
-
-    /**
-     * @param lastUpdateDate
-     *            the lastUpdateDate to set
-     */
-    @JsonDeserialize(using=CustomJsonDateDeserializer.class)
-    public void setLastUpdateDate(Date lastUpdateDate) {
-        this.lastUpdateDate = lastUpdateDate;
-    }
-
-    /**
      * @param generateThumbnail
      *            the generateThumbnail to set
      */
     public void setGenerateThumbnail(boolean generateThumbnail) {
         this.generateThumbnail = generateThumbnail;
-    }
-
-    /**
-     * @param status
-     *            the status to set
-     */
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    /**
-     * @param set
-     *            the set to set
-     */
-    public void setSet(String set) {
-        this.set = set;
-    }
-
-    /**
-     * @param identifier
-     *            the identifier to set
-     */
-    public void setIdentifier(String identifier) {
-        this.identifier = identifier;
     }
 
     /**

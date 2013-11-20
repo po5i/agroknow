@@ -1,5 +1,7 @@
 package com.agroknow.indexer;
 
+import com.agroknow.domain.agrif.Agrif;
+import com.agroknow.domain.akif.Akif;
 import com.agroknow.domain.parser.factory.SimpleMetadataParserFactory;
 import com.agroknow.domain.parser.json.CustomObjectMapper;
 import java.io.File;
@@ -83,8 +85,11 @@ public class App {
         // options.bulkSize number of files
         ExecutorService threadPool = Executors.newFixedThreadPool(4, new BasicThreadFactory.Builder().namingPattern("bulkindexworker-%d").build());
         int step = options.bulkSize;
+        BulkIndexWorker w;
         for(int i=0; i<filesSize; i+=step) {
-            threadPool.submit(new BulkIndexWorker(files.subList(i, Math.min(i+step, filesSize)), options.fileFormat, charset, objectMapper, lastCheck, esClient));
+            w = SimpleMetadataParserFactory.AKIF.equalsIgnoreCase(options.fileFormat) ? new BulkIndexWorker<Akif>() : new BulkIndexWorker<Agrif>();
+            w.init(files.subList(i, Math.min(i+step, filesSize)), options.fileFormat, charset, objectMapper, lastCheck, esClient);
+            threadPool.submit(w);
         }
 
         // close everything and go to sleep :)

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-curl -XPUT "http://$1/akif/" -d '{
+curl -XPUT "http://$1/agrif/" -d '{
     "settings" : {
         "number_of_shards" : 3,
         "number_of_replicas" : 0,
@@ -69,24 +69,8 @@ curl -XPUT "http://$1/akif/" -d '{
                     }
                 },
                 {
-                    "template_taxonPaths" : {
-                        "path_match" : "tokenBlock.taxonPaths.*",
-                        "mapping" : {
-                            "type" : "string"
-                        }
-                    }
-                },
-                {
                     "template_rights" : {
                         "path_match" : "rights.description.*",
-                        "mapping" : {
-                            "type" : "string"
-                        }
-                    }
-                },
-                {
-                    "template_learningObjectives" : {
-                        "path_match" : "learningObjectives.properties.*",
                         "mapping" : {
                             "type" : "string"
                         }
@@ -120,10 +104,6 @@ curl -XPUT "http://$1/akif/" -d '{
             },
 
             "properties" : {
-                "generateThumbnail" : {
-                    "type" : "boolean",
-                    "include_in_all" : false
-                },
                 "status" : {
                     "type" : "string"
                 },
@@ -158,18 +138,6 @@ curl -XPUT "http://$1/akif/" -d '{
                                 "keywords" : { "type" : "string", "index_name" : "keyword" },
                                 "coverage" : { "type" : "string" }
                             }
-                        }
-                    }
-                },
-
-                "tokenBlock" : {
-                    "properties" : {
-                        "ageRange" : { "type" : "string" },
-                        "contexts" : { "type" : "string", "index_name" : "context" },
-                        "endUserRoles" : { "type" : "string", "index_name" : "endUserRole" },
-                        "learningResourceTypes" : { "type" : "string", "index_name" : "learningResourceType" },
-                        "taxonPaths" : {
-                            "type" : "object"
                         }
                     }
                 },
@@ -210,25 +178,16 @@ curl -XPUT "http://$1/akif/" -d '{
                     }
                 },
 
-                "contributors" : {
-                    "properties" : {
-                        "date" : {
-                            "type" : "string",
-                            "include_in_all" : false
-                        },
-                        "name" : { "type" : "string" },
-                        "organization" : { "type" : "string" },
-                        "role" : { "type" : "string" },
-                        "description" : { "type" : "object" }
-                    }
+                "relations" : {
+                    "type" : "object"
                 },
 
-                "learningObjectives" : {
-                    "properties" : {
-                        "properties" : {
-                            "type" : "object"
-                        }
-                    }
+                "creators" : {
+                    "type" : "object"
+                },
+
+                "controlled" : {
+                    "type" : "object"
                 }
             }
         }

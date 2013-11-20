@@ -1,9 +1,9 @@
-package com.agroknow.domain;
+package com.agroknow.domain.akif;
 
 import java.io.Serializable;
 import java.util.Map;
 
-public class Rights implements Serializable {
+public class Right implements Serializable {
 
     private static final long serialVersionUID = 1L;
 

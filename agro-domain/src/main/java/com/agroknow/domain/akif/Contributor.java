@@ -1,4 +1,4 @@
-package com.agroknow.domain;
+package com.agroknow.domain.akif;
 
 import com.agroknow.domain.parser.json.CustomJsonDateDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;

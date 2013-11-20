@@ -1,9 +1,10 @@
 package com.agroknow.indexer;
 
-import com.agroknow.domain.Akif;
+import com.agroknow.domain.InternalFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.ParameterizedType;
 import java.nio.charset.Charset;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
@@ -23,8 +24,9 @@ import org.springframework.util.Assert;
  * if they were updated later than indexer's last run (if any).
  *
  * @author aggelos
+ * @param <T>
  */
-public class BulkIndexWorker implements Runnable {
+public class BulkIndexWorker<T extends InternalFormat> implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BulkIndexWorker.class);
 
@@ -34,6 +36,10 @@ public class BulkIndexWorker implements Runnable {
     private long lastCheck;
     private Client esClient;
     private ObjectMapper objectMapper;
+
+    private Class<T> fileFormatClass;
+
+    public BulkIndexWorker() {}
 
     /**
      * BulkIndexWorker is used to parse a list of files and submit them to elasticsearch
@@ -61,13 +67,16 @@ public class BulkIndexWorker implements Runnable {
      * @param esClient The elasticsearch client to use for (bulk) indexing
      */
     public BulkIndexWorker(List<File> files, String fileFormat, Charset charset, ObjectMapper objectMapper, long lastCheck, Client esClient) {
+        this.init(files, fileFormat, charset, objectMapper, lastCheck, esClient);
+    }
+
+    public final void init(List<File> files, String fileFormat, Charset charset, ObjectMapper objectMapper, long lastCheck, Client esClient) {
         this.files = files;
         this.fileFormat = fileFormat;
         this.charset = charset;
         this.objectMapper = objectMapper;
         this.lastCheck = lastCheck;
         this.esClient = esClient;
-
     }
 
     /**
@@ -88,7 +97,7 @@ public class BulkIndexWorker implements Runnable {
 
         // add documents to bulk request
         String source;
-        Akif doc;
+        T doc;
         for(File f : files) {
             LOG.debug("PROCESS file: {}", f.getAbsolutePath());
 
@@ -103,23 +112,23 @@ public class BulkIndexWorker implements Runnable {
 
             // if file is touched after the last check, parse it to Akif.class
             try {
-                doc = objectMapper.reader(Akif.class).readValue(source);
+                doc = objectMapper.reader(getFileFormatClass()).readValue(source);
             } catch(IOException ex) {
                 LOG.error("File [{}] failed to get parsed: {}", f.getCanonicalPath(), ex.getMessage());
                 MetricsRegistryHolder.getCounter("FILES[FAILED]").inc();
                 continue;
             }
 
-//INFO: lastUpdateDate is currently do not get involved when checking dates
-//      for now because it does not contain a datetime value but only a date.
-//      We'll keep this snippet here just in case we agree to change the
-//      lastUpdateDate to datetime. If not, it will be removed in a later commit.
-//
-//            // and compare Akif.lastUpdateDate with lastCheck
-//            if(this.lastCheck > doc.getLastUpdateDate().getTime()) {
-//                MetricsRegistryHolder.getCounter("FILES[SKIPPED]").inc();
-//                continue;
-//            }
+            //INFO: lastUpdateDate is currently do not get involved when checking dates
+            //      for now because it does not contain a datetime value but only a date.
+            //      We'll keep this snippet here just in case we agree to change the
+            //      lastUpdateDate to datetime. If not, it will be removed in a later commit.
+            //
+            //// and compare Akif.lastUpdateDate with lastCheck
+            //if(this.lastCheck > doc.getLastUpdateDate().getTime()) {
+            //    MetricsRegistryHolder.getCounter("FILES[SKIPPED]").inc();
+            //    continue;
+            //}
 
             // create an indexRequest and add it to the bulk
             String id = doc.getIdentifier(); // id is also in the filename and can be read with FilenameUtils.getBaseName(f.getAbsolutePath());
@@ -156,6 +165,13 @@ public class BulkIndexWorker implements Runnable {
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), (LOG.isDebugEnabled() ? ex : null));
         }
+    }
+
+    private Class<T> getFileFormatClass() {
+        if (fileFormatClass == null) {
+            this.fileFormatClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+        }
+        return fileFormatClass;
     }
 
     public void setFiles(List<File> files) {

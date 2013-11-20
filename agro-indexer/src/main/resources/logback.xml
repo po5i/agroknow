@@ -44,13 +44,16 @@
     <!-- LOGGERS -->
 	<logger name="indexer.metrics.log" level="DEBUG" additivity="false">
 		<appender-ref ref="METRICS_FILE" />
+        <appender-ref ref="STDOUT" />
 	</logger>
 
 	<logger name="com.agroknow" level="INFO" additivity="false">
 		<appender-ref ref="FILE" />
+        <appender-ref ref="STDOUT" />
 	</logger>
 
 	<root level="WARN">
 		<appender-ref ref="FILE" />
+        <appender-ref ref="STDOUT" />
 	</root>
 </configuration>

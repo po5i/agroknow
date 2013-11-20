@@ -1,7 +1,8 @@
-package com.agroknow.domain;
+package com.agroknow.domain.akif;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 public class TokenBlock implements Serializable {
 
@@ -10,7 +11,7 @@ public class TokenBlock implements Serializable {
     private List<String> learningResourceTypes;
     private List<String> endUserRoles;
     private List<String> contexts;
-//    private Map<String, Object> taxonPaths;
+    private Map<String, List<String>> taxonPaths;
     private String ageRange;
 
     /**
@@ -73,12 +74,12 @@ public class TokenBlock implements Serializable {
         this.ageRange = ageRange;
     }
 
-//    public Map<String, Object> getTaxonPaths() {
-//        return taxonPaths;
-//    }
-//
-//    public void setTaxonPaths(Map<String, Object> taxonPaths) {
-//        this.taxonPaths = taxonPaths;
-//    }
+    public Map<String, List<String>> getTaxonPaths() {
+        return taxonPaths;
+    }
+
+    public void setTaxonPaths(Map<String, List<String>> taxonPaths) {
+        this.taxonPaths = taxonPaths;
+    }
 
 }

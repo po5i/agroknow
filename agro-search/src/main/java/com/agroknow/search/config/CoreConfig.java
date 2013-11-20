@@ -1,8 +1,9 @@
 package com.agroknow.search.config;
 
-import com.agroknow.domain.parser.Parser;
-import com.agroknow.domain.parser.factory.SimpleMetadataParserFactory;
+import com.agroknow.domain.agrif.Agrif;
+import com.agroknow.domain.akif.Akif;
 import com.agroknow.domain.parser.json.CustomObjectMapper;
+import com.agroknow.search.services.SearchService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.client.transport.TransportClient;
@@ -30,8 +31,13 @@ public class CoreConfig {
     }
 
     @Bean
-    public Parser akifParser() {
-        return SimpleMetadataParserFactory.getParser("akif");
+    public SearchService<Akif> akifSearchService() {
+        return new SearchService<Akif>();
+    }
+
+    @Bean
+    public SearchService<Agrif> agrifSearchService() {
+        return new SearchService<Agrif>();
     }
 
     @Bean

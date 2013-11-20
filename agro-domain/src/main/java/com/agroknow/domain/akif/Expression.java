@@ -1,4 +1,4 @@
-package com.agroknow.domain;
+package com.agroknow.domain.akif;
 
 import java.io.Serializable;
 import java.util.List;

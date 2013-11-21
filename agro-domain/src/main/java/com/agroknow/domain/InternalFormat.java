@@ -2,6 +2,7 @@
 package com.agroknow.domain;
 
 import com.agroknow.domain.parser.json.CustomJsonDateDeserializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import java.util.Date;
 import java.util.HashSet;
@@ -30,6 +31,7 @@ public class InternalFormat extends SimpleMetadata {
      * @see com.agroknow.domain.SimpleMetadata#getIdentifiers()
      */
     @Override
+    @JsonIgnore
     public Set<String> getIdentifiers() {
         Set<String> result = new HashSet<String>(1);
         result.add(this.getIdentifier());

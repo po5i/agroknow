@@ -53,7 +53,7 @@ curl -XPUT "http://$1/agrif/" -d '{
     },
 
     "mappings" : {
-        "akif" : {
+        "agrif" : {
             "dynamic_templates" : [
                 {
                     "template_languageBlocks" : {
@@ -61,18 +61,12 @@ curl -XPUT "http://$1/agrif/" -d '{
                         "mapping" : {
                             "properties" : {
                                 "title" : { "type" : "string" },
-                                "description" : { "type" : "string" },
+                                "alternativeTitle" : { "type" : "string" },
+                                "titleSupplemental" : { "type" : "string" },
                                 "keywords" : { "type" : "string", "index_name" : "keyword" },
-                                "coverage" : { "type" : "string" }
+                                "abstract" : { "type" : "string" },
+                                "notes" : { "type" : "string" }
                             }
-                        }
-                    }
-                },
-                {
-                    "template_rights" : {
-                        "path_match" : "rights.description.*",
-                        "mapping" : {
-                            "type" : "string"
                         }
                     }
                 }
@@ -95,12 +89,6 @@ curl -XPUT "http://$1/agrif/" -d '{
             "_routing" : {
                 "required" : true,
                 "path" : "set"
-            },
-
-            "_timestamp" : {
-                "enabled" : true,
-                "path" : "lastUpdateDate",
-                "format" : "date"
             },
 
             "properties" : {
@@ -126,56 +114,32 @@ curl -XPUT "http://$1/agrif/" -d '{
                         "en": {
                             "properties" : {
                                 "title" : { "type" : "string", "analyzer" : "en_analyzer" },
-                                "description" : { "type" : "string", "analyzer" : "en_analyzer" },
-                                "keywords" : { "type" : "string", "index_name" : "keyword" },
-                                "coverage" : { "type" : "string" }
+                                "alternativeTitle" : { "type" : "string", "analyzer" : "en_analyzer" },
+                                "titleSupplemental" : { "type" : "string", "analyzer" : "en_analyzer" },
+                                "keywords" : { "type" : "string", "index_name" : "keyword", "analyzer" : "en_analyzer" },
+                                "abstract" : { "type" : "string", "analyzer" : "en_analyzer" },
+                                "notes" : { "type" : "string", "analyzer" : "en_analyzer" }
                             }
                         },
                         "el": {
                             "properties" : {
                                 "title" : { "type" : "string", "analyzer" : "el_analyzer" },
-                                "description" : { "type" : "string", "analyzer" : "el_analyzer" },
-                                "keywords" : { "type" : "string", "index_name" : "keyword" },
-                                "coverage" : { "type" : "string" }
+                                "alternativeTitle" : { "type" : "string", "analyzer" : "el_analyzer" },
+                                "titleSupplemental" : { "type" : "string", "analyzer" : "el_analyzer" },
+                                "keywords" : { "type" : "string", "index_name" : "keyword", "analyzer" : "el_analyzer" },
+                                "abstract" : { "type" : "string", "analyzer" : "el_analyzer" },
+                                "notes" : { "type" : "string", "analyzer" : "el_analyzer" }
                             }
                         }
                     }
                 },
 
                 "expressions" : {
-                    "properties" : {
-                        "language" : { "type" : "string" },
-                        "manifestations" : {
-                            "properties" : {
-                                "name" : { "type" : "string" },
-                                "parameter" : { "type" : "string" },
-                                "duration" : { "type" : "string" },
-                                "identifier" : { "type" : "string" },
-                                "items" : {
-                                    "properties" : {
-                                        "url": { "type" : "string" },
-                                        "broken" : {
-                                            "type" : "boolean",
-                                            "include_in_all" : false
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    "type" : "object"
                 },
 
                 "rights" : {
-                    "properties" : {
-                        "url" : { "type" : "string" },
-                        "description" : {
-                            "type" : "object",
-                            "properties" : {
-                                "en": { "type" : "string", "analyzer" : "en_analyzer" },
-                                "el": { "type" : "string", "analyzer" : "el_analyzer" }
-                            }
-                        }
-                    }
+                    "type" : "object"
                 },
 
                 "relations" : {

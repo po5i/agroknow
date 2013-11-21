@@ -1,6 +1,7 @@
 package com.agroknow.domain.agrif;
 
 import com.agroknow.domain.InternalFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +32,7 @@ public class Agrif extends InternalFormat {
      * @see com.agroknow.domain.SimpleMetadata#getLocations()
      */
     @Override
+    @JsonIgnore
     public Set<String> getLocations() {
         if (CollectionUtils.isEmpty(this.expressions))
             return null;
@@ -45,7 +47,7 @@ public class Agrif extends InternalFormat {
                 if (CollectionUtils.isEmpty(mf.getItems())) {
                     continue;
                 }
-                
+
                 for (Manifestation.Item i : mf.getItems()) {
                     if (i.getUrl() != null) {
                         locations.add(i.getUrl());

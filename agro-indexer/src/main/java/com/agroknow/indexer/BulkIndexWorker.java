@@ -4,7 +4,6 @@ import com.agroknow.domain.InternalFormat;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.nio.charset.Charset;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
@@ -13,8 +12,6 @@ import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.client.Client;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.Assert;
@@ -30,49 +27,36 @@ public class BulkIndexWorker<T extends InternalFormat> implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BulkIndexWorker.class);
 
-    private List<File> files;
     private String fileFormat;
+    private Class<T> fileFormatClass;
+    private List<File> files;
     private Charset charset;
     private long lastCheck;
     private Client esClient;
     private ObjectMapper objectMapper;
 
-    private Class<T> fileFormatClass;
-
+    /**
+     * The default constructor. Use init() after creating a worker to set it up.
+     */
     public BulkIndexWorker() {}
 
     /**
-     * BulkIndexWorker is used to parse a list of files and submit them to elasticsearch
-     * if they were updated later than indexer's last run (if any). Files are read
-     * in UTF-8 charset.
+     * Initialize BulkIndexWorker. This method is useful when we create a new
+     * instance of BulkIndexWorker using the default constructor and the we
+     * want to set it up.
      *
+     * @param fileFormat The fileFormat under processing
+     * @param fileFormatClass The fileFormatClass responsible for this fileFormat
      * @param files The list of Files to process
-     * @param fileFormat The data format of those files
-     * @param objectMapper  The objectMapper to use to serialize/deserialize json
-     * @param esClient The elasticsearch client to use for (bulk) indexing
-     */
-    public BulkIndexWorker(List<File> files, String fileFormat, ObjectMapper objectMapper, Client esClient) {
-        this(files, fileFormat, Charset.forName("UTF-8"), objectMapper, new DateTime().withZone(DateTimeZone.UTC).getMillis(), esClient);
-    }
-
-    /**
-     * BulkIndexWorker is used to parse a list of files and submit them to elasticsearch
-     * if they were updated later than indexer's last run (if any)
-     *
-     * @param files The list of Files to process
-     * @param fileFormat The data format of those files
      * @param charset The charset to read files with
      * @param objectMapper  The objectMapper to use to serialize/deserialize json
      * @param lastCheck The timestamp of indexer's last run
      * @param esClient The elasticsearch client to use for (bulk) indexing
      */
-    public BulkIndexWorker(List<File> files, String fileFormat, Charset charset, ObjectMapper objectMapper, long lastCheck, Client esClient) {
-        this.init(files, fileFormat, charset, objectMapper, lastCheck, esClient);
-    }
-
-    public final void init(List<File> files, String fileFormat, Charset charset, ObjectMapper objectMapper, long lastCheck, Client esClient) {
-        this.files = files;
+    public final void init(String fileFormat, Class<T> fileFormatClass, List<File> files, Charset charset, ObjectMapper objectMapper, long lastCheck, Client esClient) {
         this.fileFormat = fileFormat;
+        this.fileFormatClass = fileFormatClass;
+        this.files = files;
         this.charset = charset;
         this.objectMapper = objectMapper;
         this.lastCheck = lastCheck;
@@ -88,6 +72,7 @@ public class BulkIndexWorker<T extends InternalFormat> implements Runnable {
     public void index() throws Exception {
         Assert.notNull(this.files);
         Assert.notNull(this.fileFormat);
+        Assert.notNull(this.fileFormatClass);
         Assert.notNull(this.charset);
         Assert.notNull(this.lastCheck);
         Assert.notNull(this.esClient);
@@ -112,7 +97,7 @@ public class BulkIndexWorker<T extends InternalFormat> implements Runnable {
 
             // if file is touched after the last check, parse it to Akif.class
             try {
-                doc = objectMapper.reader(getFileFormatClass()).readValue(source);
+                doc = objectMapper.reader(fileFormatClass).readValue(source);
             } catch(IOException ex) {
                 LOG.error("File [{}] failed to get parsed: {}", f.getCanonicalPath(), ex.getMessage());
                 MetricsRegistryHolder.getCounter("FILES[FAILED]").inc();
@@ -167,13 +152,6 @@ public class BulkIndexWorker<T extends InternalFormat> implements Runnable {
         }
     }
 
-    private Class<T> getFileFormatClass() {
-        if (fileFormatClass == null) {
-            this.fileFormatClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        }
-        return fileFormatClass;
-    }
-
     public void setFiles(List<File> files) {
         this.files = files;
     }
@@ -181,6 +159,11 @@ public class BulkIndexWorker<T extends InternalFormat> implements Runnable {
     public void setFileFormat(String fileFormat) {
         this.fileFormat = fileFormat;
     }
+
+    public void setFileFormatClass(Class<T> fileFormatClass) {
+        this.fileFormatClass = fileFormatClass;
+    }
+
 
     public void setCharset(Charset charset) {
         this.charset = charset;

@@ -32,12 +32,16 @@ public class CoreConfig {
 
     @Bean
     public SearchService<Akif> akifSearchService() {
-        return new SearchService<Akif>();
+        SearchService s = new SearchService<Akif>();
+        s.init("akif", Akif.class);
+        return s;
     }
 
     @Bean
     public SearchService<Agrif> agrifSearchService() {
-        return new SearchService<Agrif>();
+        SearchService s = new SearchService<Agrif>();
+        s.init("agrif", Agrif.class);
+        return s;
     }
 
     @Bean

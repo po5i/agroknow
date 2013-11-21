@@ -52,8 +52,8 @@ public class App {
         Charset charset = Charset.forName(options.charset);
 
         // operations over runtime dir (write pid, read last-check timestamp)
-        FileUtils.writeStringToFile(FileUtils.getFile(options.runtimeDirectory, "pid"), String.valueOf(getPid()), charset);
-        File lastCheckFile = FileUtils.getFile(options.runtimeDirectory, "last-check");
+        FileUtils.writeStringToFile(FileUtils.getFile(options.runtimeDirectory, options.fileFormat+".pid"), String.valueOf(getPid()), charset);
+        File lastCheckFile = FileUtils.getFile(options.runtimeDirectory, options.fileFormat+".last-check");
         long lastCheck = -1;
         if( lastCheckFile.exists() ) {
              lastCheck = Long.valueOf(FileUtils.readFileToString(lastCheckFile, charset));
@@ -87,8 +87,7 @@ public class App {
         int step = options.bulkSize;
         BulkIndexWorker w;
         for(int i=0; i<filesSize; i+=step) {
-            w = SimpleMetadataParserFactory.AKIF.equalsIgnoreCase(options.fileFormat) ? new BulkIndexWorker<Akif>() : new BulkIndexWorker<Agrif>();
-            w.init(files.subList(i, Math.min(i+step, filesSize)), options.fileFormat, charset, objectMapper, lastCheck, esClient);
+            w = BulkIndexWorkerFactory.getWorker(options.fileFormat, files.subList(i, Math.min(i+step, filesSize)), charset, objectMapper, lastCheck, esClient);
             threadPool.submit(w);
         }
 

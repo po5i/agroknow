@@ -1,6 +1,7 @@
 
 package com.agroknow.domain.parser.json;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -17,6 +18,9 @@ public class CustomObjectMapper extends ObjectMapper {
     }
 
     public void init() {
+        // avoid including null values
+        this.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
         // to enable standard indentation ("pretty-printing"):
         this.enable(SerializationFeature.INDENT_OUTPUT);
         // to allow serialization of "empty" POJOs (no properties to serialize)

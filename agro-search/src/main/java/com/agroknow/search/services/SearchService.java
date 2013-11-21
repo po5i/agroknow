@@ -5,13 +5,12 @@ import com.agroknow.search.domain.AgroSearchRequest;
 import com.agroknow.search.domain.AgroSearchResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.lang.reflect.ParameterizedType;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.action.get.MultiGetItemResponse;
 import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
@@ -44,11 +43,18 @@ public class SearchService<T extends InternalFormat> {
     private String fileFormat;
     private Class<T> fileFormatClass;
 
+    public SearchService() {}
+
+    public final void init(String fileFormat, Class<T> fileFormatClass) {
+        this.fileFormat = fileFormat;
+        this.fileFormatClass = fileFormatClass;
+    }
+
     public AgroSearchResponse<T> search(AgroSearchRequest req) throws IOException {
         AgroSearchResponse<T> res = new AgroSearchResponse<T>();
 
         // create the SearchRequestBuilder
-        SearchRequestBuilder searchReqBuilder = esClient.prepareSearch(getFileFormat()).setTypes(getFileFormat());
+        SearchRequestBuilder searchReqBuilder = esClient.prepareSearch(fileFormat).setTypes(fileFormat);
 
         // setup query
         QueryBuilder queryBuilder;
@@ -101,7 +107,8 @@ public class SearchService<T extends InternalFormat> {
             hit = hitsIter.next();
 
             String source = hit.getSourceAsString();
-            T doc = objectMapper.reader(getFileFormatClass()).readValue(source);
+            T doc = objectMapper.reader(fileFormatClass).readValue(source);
+            doc.setIdentifier(hit.getId());
             res.addResult(doc);
         }
 
@@ -137,11 +144,12 @@ public class SearchService<T extends InternalFormat> {
      * Fetch the akif/agrif objects of the given ids. When no ids argument an empty
      * response is returned with no results.
      *
+     * @param set
      * @param ids
      * @return
      * @throws IOException
      */
-    public AgroSearchResponse<T> fetch(String[] ids) throws IOException {
+    public AgroSearchResponse<T> fetch(String set, String[] ids) throws IOException {
         AgroSearchResponse<T> res = new AgroSearchResponse<T>();
         if (ArrayUtils.isEmpty(ids)) { // return empty res when no ids
             return res;
@@ -150,9 +158,8 @@ public class SearchService<T extends InternalFormat> {
         // create the MultiGetRequest for akif/agrif ids given
         MultiGetRequestBuilder mGetBuilder = esClient.prepareMultiGet();
         MultiGetRequest.Item item;
-        String format = getFileFormat();
         for (String id : ids) {
-            item = new MultiGetRequest.Item(format, format, id);
+            item = new MultiGetRequest.Item(fileFormat, fileFormat, id).routing(set);
             mGetBuilder.add(item);
         }
 
@@ -167,8 +174,10 @@ public class SearchService<T extends InternalFormat> {
             if (itemResponse.isFailed()) {
                 continue;
             }
-            String source = itemResponse.getResponse().getSourceAsString();
-            T doc = objectMapper.reader(getFileFormatClass()).readValue(source);
+            GetResponse getRes = itemResponse.getResponse();
+            String source = getRes.getSourceAsString();
+            T doc = objectMapper.reader(fileFormatClass).readValue(source);
+            doc.setIdentifier(getRes.getId());
             res.increaseTotal();
             res.addResult(doc);
         }
@@ -225,19 +234,4 @@ public class SearchService<T extends InternalFormat> {
         }
         return q;
     }
-
-    private String getFileFormat() {
-        if (fileFormat == null) {
-            fileFormat = getFileFormatClass().getSimpleName().toLowerCase(Locale.ENGLISH);
-        }
-        return fileFormat;
-    }
-
-    private Class<T> getFileFormatClass() {
-        if (fileFormatClass == null) {
-            this.fileFormatClass = (Class<T>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-        }
-        return fileFormatClass;
-    }
-
 }

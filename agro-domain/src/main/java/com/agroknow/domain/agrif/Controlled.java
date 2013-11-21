@@ -11,7 +11,7 @@ import java.util.Map;
 public class Controlled {
 
     private Map<String,String> classification;
-    private List<String> type;
+    private List<SourceValue> type;
     private List<SourceValue> spatialCoverage;
     private List<SourceValue> temporalCoverage;
 
@@ -23,11 +23,11 @@ public class Controlled {
         this.classification = classification;
     }
 
-    public List<String> getType() {
+    public List<SourceValue> getType() {
         return type;
     }
 
-    public void setType(List<String> type) {
+    public void setType(List<SourceValue> type) {
         this.type = type;
     }
 

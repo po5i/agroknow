@@ -1,6 +1,7 @@
 package com.agroknow.domain.akif;
 
 import com.agroknow.domain.InternalFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -61,6 +62,7 @@ public class Akif extends InternalFormat {
      * @see com.agroknow.domain.SimpleMetadata#getLocations()
      */
     @Override
+    @JsonIgnore
     public Set<String> getLocations() {
         if (CollectionUtils.isEmpty(this.expressions))
             return null;

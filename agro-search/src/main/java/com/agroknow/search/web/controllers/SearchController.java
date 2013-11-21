@@ -48,9 +48,9 @@ public class SearchController {
         return getSearchService(fileFormat).autocomplete(searchReq);
     }
 
-    @RequestMapping(value = "/{id}", method = { RequestMethod.GET })
-    public @ResponseBody AgroSearchResponse fetch(@PathVariable String fileFormat, @PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return getSearchService(fileFormat).fetch(id.split(","));
+    @RequestMapping(value = "/{set}/{id}", method = { RequestMethod.GET })
+    public @ResponseBody AgroSearchResponse fetch(@PathVariable String fileFormat, @PathVariable String set, @PathVariable String id, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        return getSearchService(fileFormat).fetch(set, id.split(","));
     }
 
     private AgroSearchRequest buildSearchRequest(HttpServletRequest request) {

@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import javax.servlet.DispatcherType;
 
 import javax.servlet.FilterRegistration;
 import javax.servlet.ServletContext;
@@ -21,6 +22,7 @@ import org.springframework.web.context.ContextCleanupListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.DispatcherServlet;
+import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 
 /**
  *
@@ -64,6 +66,13 @@ public class AgroSearchInitializer implements WebApplicationInitializer {
         encodingFilter.setEncoding("UTF-8");
         FilterRegistration.Dynamic encodingRegisteredFilter = container.addFilter("characterEncodingFilter", encodingFilter);
         encodingRegisteredFilter.addMappingForUrlPatterns(null, false, "/*");
+
+        //add url rewrite filter - order of addition matters so keep this filter before securityFilter
+        UrlRewriteFilter urlRewriteFilter = new UrlRewriteFilter();
+        FilterRegistration.Dynamic urlRewriteRegisteredFilter = container.addFilter("urlRewriteFilter", urlRewriteFilter);
+        urlRewriteRegisteredFilter.setInitParameter("confPath", "/WEB-INF/urlrewrite."+environment+".xml");
+        urlRewriteRegisteredFilter.setInitParameter("statusEnabled", "false");
+        urlRewriteRegisteredFilter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false, "/*");
 
         //add a shutdown listener that closes spring web and parent contexts
         container.addListener(ContextCleanupListener.class);

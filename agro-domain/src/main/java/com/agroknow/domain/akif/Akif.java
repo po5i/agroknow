@@ -1,13 +1,19 @@
 package com.agroknow.domain.akif;
 
 import com.agroknow.domain.InternalFormat;
+import com.agroknow.domain.validation.NotEmptyKey;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.collections.CollectionUtils;
+import org.hibernate.validator.constraints.NotEmpty;
 
 public class Akif extends InternalFormat {
 
@@ -15,7 +21,9 @@ public class Akif extends InternalFormat {
 
     private boolean generateThumbnail;
     private List<Contributor> contributors;
+    @NotNull @Valid
     private TokenBlock tokenBlock;
+    @NotEmpty @NotEmptyKey @Valid
     private Map<String, LanguageBlock> languageBlocks;
     private Right rights;
     private List<Expression> expressions;
@@ -64,8 +72,9 @@ public class Akif extends InternalFormat {
     @Override
     @JsonIgnore
     public Set<String> getLocations() {
-        if (CollectionUtils.isEmpty(this.expressions))
+        if (CollectionUtils.isEmpty(this.expressions)) {
             return null;
+        }
 
         Set<String> locations = new HashSet<String>();
         for (Expression e : expressions) {

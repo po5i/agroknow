@@ -1,44 +1,27 @@
 package com.agroknow.domain.parser;
 
 import com.agroknow.domain.SimpleMetadata;
+import com.agroknow.domain.agrif.Agrif;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
 
-import org.apache.commons.io.IOUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
+import javax.validation.Validator;
 
 public class SimpleParserAGRIF extends AbstractParser {
 
-	@Override
-	public SimpleMetadata loadInternal(FileInputStream fileReader) throws IOException 
-	{
-		JSONObject agrifObject = (JSONObject)JSONValue.parse( IOUtils.toString(fileReader) ) ;
-		Set<String> identifiers = new HashSet<String>() ;
-		if ( agrifObject.containsKey( "agrifIdentifier" ) )
-		{
-			String identifier = ((Long)agrifObject.get( "agrifIdentifier" )).toString() ;
-			identifiers.add( identifier ) ;			
-		}
-		Set<String> locations = new HashSet<String>() ;
-		JSONArray expressions = (JSONArray)agrifObject.get( "expressions" ) ;
-		for ( Object expression: expressions )
-		{
-			JSONArray manifestations = (JSONArray)((JSONObject)expression).get( "manifestations" ) ;
-			for ( Object manifestation: manifestations )
-			{
-				JSONArray items = (JSONArray)((JSONObject)manifestation).get( "items" ) ;
-				for ( Object item: items )
-				{
-					locations.add( (String)((JSONObject)item).get( "url" ) ) ;
-				}
-			}
-		}
-		
-		return new SimpleMetadata(locations, identifiers);
-	}
+    /**
+     * @param mapper
+     * @param validator
+     */
+    public SimpleParserAGRIF(ObjectMapper mapper, Validator validator) {
+        super(mapper, validator);
+    }
+
+    @Override
+    public SimpleMetadata loadInternal(FileInputStream fileReader) throws IOException, JsonProcessingException {
+        return getMapper().reader(Agrif.class).readValue(fileReader);
+    }
 }

@@ -1,12 +1,15 @@
 
 package com.agroknow.domain.agrif;
 
+import java.io.Serializable;
+
 /**
  *
  * @author aggelos
  */
-public class Relation {
+public class Relation implements Serializable{
 
+    private static final long serialVersionUID = 1L;
     private String typeOfRelation;
     private String typeOfReference;
     private String reference;

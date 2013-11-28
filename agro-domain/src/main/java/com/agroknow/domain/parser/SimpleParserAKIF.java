@@ -1,18 +1,18 @@
 package com.agroknow.domain.parser;
 
-import com.agroknow.domain.akif.Akif;
 import com.agroknow.domain.SimpleMetadata;
+import com.agroknow.domain.akif.Akif;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 
+import javax.validation.Validator;
+
 public class SimpleParserAKIF extends AbstractParser {
 
-    public SimpleParserAKIF() {
-    }
-
-    public SimpleParserAKIF(ObjectMapper mapper) {
-        super(mapper);
+    public SimpleParserAKIF(ObjectMapper mapper, Validator validator) {
+        super(mapper, validator);
     }
 
     @Override

@@ -3,16 +3,21 @@ package com.agroknow.domain.akif;
 import java.io.Serializable;
 import java.util.List;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 public class LanguageBlock implements Serializable {
 
     /**
      * 
      */
     private static final long serialVersionUID = 1L;
-
+    
+    @NotEmpty
     private String title;
+    @NotEmpty
     private List<String> keywords;
     private String coverage;
+    @NotEmpty
     private String description;
 
     /**

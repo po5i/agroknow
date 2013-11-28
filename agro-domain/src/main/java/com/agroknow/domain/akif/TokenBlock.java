@@ -4,14 +4,19 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 public class TokenBlock implements Serializable {
 
     private static final long serialVersionUID = 1L;
-
+    @NotEmpty
     private List<String> learningResourceTypes;
+    @NotEmpty
     private List<String> endUserRoles;
+    @NotEmpty
     private List<String> contexts;
     private Map<String, List<String>> taxonPaths;
+    @NotEmpty
     private String ageRange;
 
     /**

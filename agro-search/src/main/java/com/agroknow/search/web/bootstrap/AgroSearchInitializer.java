@@ -65,14 +65,14 @@ public class AgroSearchInitializer implements WebApplicationInitializer {
         CharacterEncodingFilter encodingFilter = new CharacterEncodingFilter();
         encodingFilter.setEncoding("UTF-8");
         FilterRegistration.Dynamic encodingRegisteredFilter = container.addFilter("characterEncodingFilter", encodingFilter);
-        encodingRegisteredFilter.addMappingForUrlPatterns(null, false, "/search-api/*");
+        encodingRegisteredFilter.addMappingForUrlPatterns(null, false, "/*");
 
         //add url rewrite filter - order of addition matters so keep this filter before securityFilter
         UrlRewriteFilter urlRewriteFilter = new UrlRewriteFilter();
         FilterRegistration.Dynamic urlRewriteRegisteredFilter = container.addFilter("urlRewriteFilter", urlRewriteFilter);
         urlRewriteRegisteredFilter.setInitParameter("confPath", "/WEB-INF/urlrewrite."+environment+".xml");
         urlRewriteRegisteredFilter.setInitParameter("statusEnabled", "false");
-        urlRewriteRegisteredFilter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false, "/search-api/*");
+        urlRewriteRegisteredFilter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false, "/*");
 
         //add a shutdown listener that closes spring web and parent contexts
         container.addListener(ContextCleanupListener.class);

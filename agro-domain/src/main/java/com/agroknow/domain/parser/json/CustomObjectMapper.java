@@ -14,6 +14,8 @@ import java.text.SimpleDateFormat;
  */
 public class CustomObjectMapper extends ObjectMapper {
 
+    private static final long serialVersionUID = 1L;
+
     public CustomObjectMapper() {
     }
 

@@ -1,6 +1,7 @@
 
 package com.agroknow.domain.agrif;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -8,8 +9,9 @@ import java.util.Map;
  *
  * @author aggelos
  */
-public class Controlled {
+public class Controlled implements Serializable{
 
+    private static final long serialVersionUID = 1L;
     private Map<String,String> classification;
     private List<SourceValue> type;
     private List<SourceValue> spatialCoverage;
@@ -47,7 +49,8 @@ public class Controlled {
         this.temporalCoverage = temporalCoverage;
     }
 
-    public static final class SourceValue {
+    public static final class SourceValue implements Serializable{
+        private static final long serialVersionUID = 1L;
         private String source;
         private String value;
 

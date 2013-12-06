@@ -59,7 +59,7 @@ public class Agrif extends InternalFormat {
     }
 
     public String getAgrifIdentifier() {
-        return identifier;
+        return super.getIdentifier();
     }
 
     public void setAgrifIdentifier(String agrifIdentifier) {

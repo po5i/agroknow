@@ -1,12 +1,15 @@
 
 package com.agroknow.domain.agrif;
 
+import java.io.Serializable;
+
 /**
  *
  * @author aggelos
  */
-public class Creator {
+public class Creator implements Serializable{
 
+    private static final long serialVersionUID = 1L;
     private String type;
     private String name;
     private String identifier;

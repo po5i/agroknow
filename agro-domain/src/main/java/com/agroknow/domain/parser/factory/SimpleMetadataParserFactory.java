@@ -15,6 +15,10 @@ import com.agroknow.domain.parser.json.CustomObjectMapper;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+
 public class SimpleMetadataParserFactory {
     public static final String MODS = "mods";
     public static final String AKIF = "akif";
@@ -22,35 +26,42 @@ public class SimpleMetadataParserFactory {
     public static final String NSDL = "nsdl";
     public static final String DC = "dc";
     public static final String AGRIF = "agrif";
-    private static final Map<String, AbstractParser> parsersMap = new HashMap<String, AbstractParser>();
-
+    private static final Map<String, AbstractParser> PARSERS_MAP = new HashMap<String, AbstractParser>();
+    private static final Validator VALIDATOR;
+    
     static {
         // we usually use the Factory when out of a DI environment (like Spring)
         // so we must instansiate the dependencies and pass them through by
         // hand. Currently, in Parser(s), we only depend on ObjectMapper.
         CustomObjectMapper mapper = new CustomObjectMapper();
         mapper.init();
+        
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        VALIDATOR = factory.getValidator();
 
-        parsersMap.put(AGRIF, new SimpleParserAGRIF());
-        parsersMap.put(MODS, new SimpleParserMODS());
-        parsersMap.put(LOM, new SimpleParserLOM());
-        parsersMap.put(NSDL, new SimpleParserNSDL());
-        parsersMap.put(DC, new SimpleParserDC());
-        parsersMap.put(AKIF, new SimpleParserAKIF(mapper));
+        PARSERS_MAP.put(AGRIF, new SimpleParserAGRIF(mapper, VALIDATOR));
+        PARSERS_MAP.put(MODS, new SimpleParserMODS());
+        PARSERS_MAP.put(LOM, new SimpleParserLOM());
+        PARSERS_MAP.put(NSDL, new SimpleParserNSDL());
+        PARSERS_MAP.put(DC, new SimpleParserDC());
+        PARSERS_MAP.put(AKIF, new SimpleParserAKIF(mapper, VALIDATOR));
     }
 
+    private SimpleMetadataParserFactory(){
+    }
+    
     public static Parser getParser(String metadataType) {
-        return parsersMap.get(metadataType);
+        return PARSERS_MAP.get(metadataType);
     }
 
     public static SimpleMetadata load(String metadataType, String filePath) throws ParserException {
-        if (!parsersMap.containsKey(metadataType)) {
+        if (!PARSERS_MAP.containsKey(metadataType)) {
             throw new ParserException("Unsupported Metadata Format : \"" + metadataType + "\" !");
         }
-        return parsersMap.get(metadataType).load(filePath);
+        return PARSERS_MAP.get(metadataType).load(filePath);
     }
 
     public static boolean isValidMetadataType(String metadataType) {
-        return parsersMap.containsKey(metadataType);
+        return PARSERS_MAP.containsKey(metadataType);
     }
 }

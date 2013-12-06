@@ -8,17 +8,25 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.validation.constraints.NotNull;
+
+import org.hibernate.validator.constraints.NotEmpty;
+
 /**
  *
  * @author aggelos
  */
 public class InternalFormat extends SimpleMetadata {
 
-    protected Date creationDate;
-    protected Date lastUpdateDate;
-    protected String status;
-    protected String set;
-    protected String identifier;
+    private static final long serialVersionUID = 1L;
+    @NotNull 
+    private Date creationDate;
+    private Date lastUpdateDate;
+    private String status;
+    @NotEmpty
+    private String set;
+    @NotEmpty
+    private String identifier;
 
     public InternalFormat() {}
 

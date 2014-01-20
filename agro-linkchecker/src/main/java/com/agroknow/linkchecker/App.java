@@ -1,5 +1,6 @@
 package com.agroknow.linkchecker;
 
+import com.agroknow.domain.parser.ParserException;
 import com.agroknow.linkchecker.domain.FileMetadata;
 import com.agroknow.linkchecker.domain.LinkCheckerOptions;
 import com.agroknow.linkchecker.exceptions.LinkCheckingException;
@@ -117,6 +118,8 @@ public final class App {
                     MetricsRegistryHolder.getCounter(fileMeta.isFailed() ? "FILES[ERROR]" : "FILES[SUCCESS]").inc();
                     fileMetaService.updateOrCopyFile(fileMeta);
                 } catch (IOException ex) {
+                    throw new LinkCheckingException("Error handling file " + fileMeta.getFilePath() + " on result.", ex);
+                } catch (ParserException ex) {
                     throw new LinkCheckingException("Error handling file " + fileMeta.getFilePath() + " on result.", ex);
                 }
 

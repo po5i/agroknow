@@ -12,6 +12,7 @@ import com.agroknow.domain.parser.SimpleParserMODS;
 import com.agroknow.domain.parser.SimpleParserNSDL;
 import com.agroknow.domain.parser.json.CustomObjectMapper;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +60,13 @@ public class SimpleMetadataParserFactory {
             throw new ParserException("Unsupported Metadata Format : \"" + metadataType + "\" !");
         }
         return PARSERS_MAP.get(metadataType).load(filePath);
+    }
+    
+    public static void updateFileUrls(String metadataType, String filePath, String identifier, Map<String, Boolean> urlsStatusMap) throws ParserException, IOException {
+        if (!PARSERS_MAP.containsKey(metadataType)) {
+            throw new ParserException("Unsupported Metadata Format : \"" + metadataType + "\" !");
+        }
+        PARSERS_MAP.get(metadataType).updateFileUrls(filePath, identifier, urlsStatusMap);
     }
 
     public static boolean isValidMetadataType(String metadataType) {

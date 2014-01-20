@@ -105,6 +105,10 @@ public class URLMetadata {
     public void setRedirectsToUrl(String redirectsToUrl) {
         this.redirectsToUrl = redirectsToUrl;
     }
+    
+    public boolean isBroken() {
+        return this.getStatusFamily() != Family.SUCCESSFUL;
+    }
 
     /*
      * (non-Javadoc)

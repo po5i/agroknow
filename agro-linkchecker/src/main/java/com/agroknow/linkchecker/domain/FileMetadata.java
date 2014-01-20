@@ -123,7 +123,7 @@ public class FileMetadata {
 
     public boolean isUrlBroken(String url) {
         for(URLMetadata dto : getLocations()) {
-            if(url.equals(dto.getUrl()) && dto.getStatusFamily() == Family.SUCCESSFUL) {
+            if(url.equals(dto.getUrl()) && !dto.isBroken()) {
                 return false;
             }
         }

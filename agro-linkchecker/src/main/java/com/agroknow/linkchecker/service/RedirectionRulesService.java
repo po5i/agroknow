@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
@@ -27,6 +28,9 @@ public final class RedirectionRulesService {
     }
 
     public void initializeRules(LinkCheckerOptions options) {
+        if(StringUtils.isBlank(options.getRulesPath())) {
+            return;
+        }
         List<String> lines = null;
         try {
             lines = FileUtils.readLines(new File(options.getRulesPath()));

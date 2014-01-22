@@ -1,5 +1,5 @@
 
-package com.agroknow.search.domain;
+package com.agroknow.search.domain.entities;
 
 import java.util.ArrayList;
 import java.util.HashMap;

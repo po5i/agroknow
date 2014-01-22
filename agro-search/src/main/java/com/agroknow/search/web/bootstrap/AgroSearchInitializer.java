@@ -21,6 +21,7 @@ import org.springframework.web.WebApplicationInitializer;
 import org.springframework.web.context.ContextCleanupListener;
 import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
+import org.springframework.web.filter.DelegatingFilterProxy;
 import org.springframework.web.servlet.DispatcherServlet;
 import org.tuckey.web.filters.urlrewrite.UrlRewriteFilter;
 
@@ -73,6 +74,10 @@ public class AgroSearchInitializer implements WebApplicationInitializer {
         urlRewriteRegisteredFilter.setInitParameter("confPath", "/WEB-INF/urlrewrite."+environment+".xml");
         urlRewriteRegisteredFilter.setInitParameter("statusEnabled", "false");
         urlRewriteRegisteredFilter.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), false, "/*");
+
+        //setup spring security filter proxy (delegates to spring security's filter-chain)
+        FilterRegistration.Dynamic securityRegisteredFilter = container.addFilter("securityFilter", new DelegatingFilterProxy("springSecurityFilterChain", webContext));
+        securityRegisteredFilter.addMappingForUrlPatterns(null, false, "/*");
 
         //add a shutdown listener that closes spring web and parent contexts
         container.addListener(ContextCleanupListener.class);

@@ -1,6 +1,6 @@
-package com.agroknow.search.domain;
+package com.agroknow.search.domain.entities;
 
-import com.agroknow.search.domain.AgroSearchResponse.TermsFacet.FacetTerm;
+import com.agroknow.search.domain.entities.AgroSearchResponse.TermsFacet.FacetTerm;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -8,8 +8,9 @@ import java.util.Map;
 import org.elasticsearch.search.facet.Facets;
 
 /**
- * AgroSearchResponse holds the response of search results as needed for agroknow
- api. The class is not thread-safe as it is not needed in the current version.
+ * AgroSearchResponse holds the response of search results as needed for
+ * agroknow api. The class is not thread-safe as it is not needed in the current
+ * version.
  *
  * @author aggelos
  * @param <T>
@@ -103,27 +104,31 @@ public class AgroSearchResponse<T> {
 
     //TODO: solve jackson problem serializing elastisearch.Facet instead
     //of replicating the structure here and creating all that mapping code
-
-
-
     //SERIOUSLY: read the above TODO
-
-
-    
     public void setupFacetsFromES(Facets facets) {
+        // some temp references
         TermsFacet tf;
-        for(org.elasticsearch.search.facet.Facet esF : facets) {
-            if("terms".equalsIgnoreCase(esF.getType())) {
+        DatesFacet df;
+
+        for (org.elasticsearch.search.facet.Facet esF : facets) {
+            if ("terms".equalsIgnoreCase(esF.getType())) {
                 org.elasticsearch.search.facet.terms.TermsFacet esTf = (org.elasticsearch.search.facet.terms.TermsFacet) esF;
                 this.facets.put(esF.getName(), (tf = new TermsFacet(esTf.getName(), esTf.getMissingCount(), esTf.getTotalCount(), esTf.getOtherCount())));
-                for(org.elasticsearch.search.facet.terms.TermsFacet.Entry esE : esTf.getEntries()) {
+                for (org.elasticsearch.search.facet.terms.TermsFacet.Entry esE : esTf.getEntries()) {
                     tf.addTerm(new FacetTerm(esE.getTerm().string(), esE.getCount()));
+                }
+            } else if ("date_histogram".equalsIgnoreCase(esF.getType())) {
+                org.elasticsearch.search.facet.datehistogram.DateHistogramFacet esDf = (org.elasticsearch.search.facet.datehistogram.DateHistogramFacet) esF;
+                this.facets.put(esF.getName(), (df = new DatesFacet(esDf.getName())));
+                for (org.elasticsearch.search.facet.datehistogram.DateHistogramFacet.Entry esE : esDf.getEntries()) {
+                    df.addDate(new DatesFacet.FacetDate(esE.getTime(), esE.getCount(), esE.getMean(), esE.getMin(), esE.getMax(), esE.getTotal(), esE.getTotalCount()));
                 }
             }
         }
     }
 
     public static class Facet {
+
         protected String name;
         protected String _type;
 
@@ -133,6 +138,7 @@ public class AgroSearchResponse<T> {
     }
 
     public static class TermsFacet extends AgroSearchResponse.Facet {
+
         private long missing;
         private long total;
         private long other;
@@ -187,6 +193,7 @@ public class AgroSearchResponse<T> {
         }
 
         public static class FacetTerm {
+
             private String term;
             private int count;
 
@@ -216,28 +223,109 @@ public class AgroSearchResponse<T> {
         }
     }
 
-//{
-//   "count":4571881,
-//   "start":0,
-//   "limit":1,
-//   "docs":[ ... ],
-//   "facets":{
-//      "provider.name":{
-//         "_type":"terms",
-//         "missing":9,
-//         "total":4571872,
-//         "other":0,
-//         "terms":[
-//            {
-//               "term":"HathiTrust",
-//               "count":1699073
-//            },
-//            {
-//               "term":"Mountain West Digital Library",
-//               "count":773751
-//            }
-//         ]
-//      }
-//   }
-//}
+    public static class DatesFacet extends AgroSearchResponse.Facet {
+
+        private Collection<FacetDate> dates = new ArrayList<FacetDate>(5);
+
+        public DatesFacet() {
+            this(null);
+        }
+
+        public DatesFacet(String name) {
+            _type = "dates";
+            this.name = name;
+        }
+
+        public Collection<FacetDate> getDates() {
+            return dates;
+        }
+
+        public void setDates(Collection<FacetDate> dates) {
+            this.dates = dates;
+        }
+
+        public void addDate(FacetDate date) {
+            this.dates.add(date);
+        }
+
+        public static class FacetDate {
+
+            private long time;
+            private long count;
+            private double mean;
+            private double min;
+            private double max;
+            private long totalCount;
+            private double total;
+
+            public FacetDate() {
+            }
+
+            public FacetDate(long time, long count, double mean, double min, double max, double total, long totalCount) {
+                this.time = time;
+                this.count = count;
+                this.mean = mean;
+                this.min = min;
+                this.max = max;
+                this.total = total;
+                this.totalCount = totalCount;
+            }
+
+            public long getTime() {
+                return time;
+            }
+
+            public void setTime(long time) {
+                this.time = time;
+            }
+
+            public long getCount() {
+                return count;
+            }
+
+            public void setCount(long count) {
+                this.count = count;
+            }
+
+            public double getMean() {
+                return mean;
+            }
+
+            public void setMean(double mean) {
+                this.mean = mean;
+            }
+
+            public double getMin() {
+                return min;
+            }
+
+            public void setMin(double min) {
+                this.min = min;
+            }
+
+            public double getMax() {
+                return max;
+            }
+
+            public void setMax(double max) {
+                this.max = max;
+            }
+
+            public long getTotalCount() {
+                return totalCount;
+            }
+
+            public void setTotalCount(long totalCount) {
+                this.totalCount = totalCount;
+            }
+
+            public double getTotal() {
+                return total;
+            }
+
+            public void setTotal(double total) {
+                this.total = total;
+            }
+        }
+    }
 }

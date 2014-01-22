@@ -3,7 +3,8 @@ package com.agroknow.search.config;
 import com.agroknow.domain.agrif.Agrif;
 import com.agroknow.domain.akif.Akif;
 import com.agroknow.domain.parser.json.CustomObjectMapper;
-import com.agroknow.search.services.SearchService;
+import com.agroknow.search.config.email.EmailConfig;
+import com.agroknow.search.domain.services.SearchService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.client.transport.TransportClient;
@@ -13,14 +14,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.context.annotation.Import;
 import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.util.Assert;
 
 @Configuration
-@ComponentScan({ "com.agroknow.search.services"})
+@ComponentScan({ "com.agroknow.search.domain.services", "com.agroknow.search.domain.repositories" })
 @EnableAsync
 @EnableAspectJAutoProxy
+@Import(EmailConfig.class)
 public class CoreConfig {
 
     @Bean
@@ -52,7 +55,7 @@ public class CoreConfig {
         TransportClient client = new TransportClient(settingsBuilder()
                 .put("cluster.name", clusterName)
                 .put("client.transport.ping_timeout", "10s")
-                //TODO maybe add more advanced settings
+                //we can add some more advanced settings
                 //.put("client.transport.sniff", )
                 //.put("client.transport.ignore_cluster_name", )
                 //.put("client.transport.nodes_sampler_interval", )

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.ViewResolver;
@@ -18,7 +19,8 @@ import org.springframework.web.servlet.view.InternalResourceViewResolver;
  * @author aggelos
  */
 @Configuration
-@ComponentScan({ "com.agroknow.search.web.controllers" })
+@ImportResource("classpath:/com/agroknow/search/config/security/securityConfig.xml")
+@ComponentScan({ "com.agroknow.search.web.controllers", "com.agroknow.search.web.security" })
 public class WebConfig extends WebMvcConfigurationSupport {
 
     public static final int UPLOAD_MAX_SIZE = 10485760;

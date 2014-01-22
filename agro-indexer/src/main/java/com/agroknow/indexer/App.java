@@ -1,7 +1,5 @@
 package com.agroknow.indexer;
 
-import com.agroknow.domain.agrif.Agrif;
-import com.agroknow.domain.akif.Akif;
 import com.agroknow.domain.parser.factory.SimpleMetadataParserFactory;
 import com.agroknow.domain.parser.json.CustomObjectMapper;
 import java.io.File;
@@ -103,7 +101,7 @@ public class App {
         }
 
         // save last-check time
-        FileUtils.writeStringToFile(FileUtils.getFile(options.runtimeDirectory, "last-check"), String.valueOf(currentCheckTime), charset);
+        FileUtils.writeStringToFile(lastCheckFile, String.valueOf(currentCheckTime), charset);
 
         //print metrics for succeeded/failed index requests and exit
         MetricsRegistryHolder.report();

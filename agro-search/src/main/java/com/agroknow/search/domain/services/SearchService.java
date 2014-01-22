@@ -1,10 +1,12 @@
-package com.agroknow.search.services;
+package com.agroknow.search.domain.services;
 
 import com.agroknow.domain.InternalFormat;
-import com.agroknow.search.domain.AgroSearchRequest;
-import com.agroknow.search.domain.AgroSearchResponse;
+import com.agroknow.search.domain.entities.AgroSearchRequest;
+import com.agroknow.search.domain.entities.AgroSearchResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -22,6 +24,7 @@ import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.facet.FacetBuilder;
 import org.elasticsearch.search.facet.FacetBuilders;
 import org.elasticsearch.search.facet.Facets;
 import org.elasticsearch.search.sort.SortOrder;
@@ -42,12 +45,14 @@ public class SearchService<T extends InternalFormat> {
 
     private String fileFormat;
     private Class<T> fileFormatClass;
+    private final Map<String, List<String>> knownFieldFacets = new HashMap<String, List<String>>();
 
     public SearchService() {}
 
     public final void init(String fileFormat, Class<T> fileFormatClass) {
         this.fileFormat = fileFormat;
         this.fileFormatClass = fileFormatClass;
+        this.knownFieldFacets.put("date", Arrays.asList(new String[]{"creationDate", "lastUpdateDate"}));
     }
 
     public AgroSearchResponse<T> search(AgroSearchRequest req) throws IOException {
@@ -94,7 +99,7 @@ public class SearchService<T extends InternalFormat> {
         // setup facets
         List<String> facetFields = req.getFacetFields();
         for (String facetField : facetFields) {
-            searchReqBuilder.addFacet(FacetBuilders.termsFacet(facetField).field(facetField).size(req.getFacetSize()));
+            searchReqBuilder.addFacet(getFacetBuilderForField(facetField, req));
         }
 
         // execute the request and get the response
@@ -186,6 +191,27 @@ public class SearchService<T extends InternalFormat> {
         return res;
     }
 
+    private FacetBuilder getFacetBuilderForField(String facetField, AgroSearchRequest req) {
+        String timeInterval = "year";
+
+        if(facetField.contains(";")) {
+            String[] facetFieldParts = facetField.split(";");
+            facetField = facetFieldParts[0];
+            timeInterval = facetFieldParts[1];
+        }
+        if(knownFieldFacets.get("date").contains(facetField)) {
+            return FacetBuilders.dateHistogramFacet(facetField).field(facetField).interval(timeInterval);
+        }
+
+        return FacetBuilders.termsFacet(facetField).field(facetField).size(req.getFacetSize());
+    }
+
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
     private QueryBuilder parsePlainQueryString(String field, String value) {
         QueryBuilder q;
 
@@ -209,6 +235,12 @@ public class SearchService<T extends InternalFormat> {
         return q;
     }
 
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
     private QueryBuilder parseORQueryString(String field, String value) {
         QueryBuilder q;
         String[] orParts = value.split("OR");
@@ -225,6 +257,12 @@ public class SearchService<T extends InternalFormat> {
         return q;
     }
 
+    /**
+     *
+     * @param field
+     * @param value
+     * @return
+     */
     private QueryBuilder createPhraseOrTermQuery(String field, String value) {
         QueryBuilder q;
         if(value.split(" ").length > 1) {

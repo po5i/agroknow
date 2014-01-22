@@ -9,7 +9,7 @@ public class Expression implements Serializable {
 
     private String language;
     private List<Manifestation> manifestations;
-    private List<Citation> citations;
+    private List<Citation> citation;
     private List<Publisher> publishers;
     private List<String> descriptionEdition;
 
@@ -29,12 +29,12 @@ public class Expression implements Serializable {
         this.manifestations = manifestations;
     }
 
-    public List<Citation> getCitations() {
-        return citations;
+    public List<Citation> getCitation() {
+        return citation;
     }
 
-    public void setCitations(List<Citation> citations) {
-        this.citations = citations;
+    public void setCitation(List<Citation> citations) {
+        this.citation = citations;
     }
 
     public List<Publisher> getPublishers() {
@@ -53,5 +53,5 @@ public class Expression implements Serializable {
         this.descriptionEdition = descriptionEdition;
     }
 
-    
+
 }

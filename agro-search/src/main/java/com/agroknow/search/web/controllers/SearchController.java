@@ -3,11 +3,14 @@ package com.agroknow.search.web.controllers;
 import com.agroknow.domain.agrif.Agrif;
 import com.agroknow.domain.akif.Akif;
 import com.agroknow.domain.parser.factory.SimpleMetadataParserFactory;
-import com.agroknow.search.domain.AgroSearchRequest;
-import com.agroknow.search.domain.AgroSearchResponse;
-import com.agroknow.search.services.SearchService;
+import com.agroknow.search.domain.entities.AgroSearchRequest;
+import com.agroknow.search.domain.entities.AgroSearchResponse;
+import com.agroknow.search.domain.entities.UserQuery;
+import com.agroknow.search.domain.services.IndexService;
+import com.agroknow.search.domain.services.SearchService;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -36,10 +39,15 @@ public class SearchController {
     @Qualifier("agrifSearchService")
     private SearchService<Agrif> agrifSearchService;
 
+    @Autowired
+    private IndexService indexService;
+
     @RequestMapping(value = { "/", "" }, method = { RequestMethod.GET })
     public @ResponseBody AgroSearchResponse root(@PathVariable String fileFormat, HttpServletRequest request, HttpServletResponse response) throws IOException {
         AgroSearchRequest searchReq = buildSearchRequest(request);
-        return getSearchService(fileFormat).search(searchReq);
+        AgroSearchResponse searchRes = getSearchService(fileFormat).search(searchReq);
+        indexService.indexUserQuery(new UserQuery(new Date().getTime(), request.getParameter("q"), searchRes.getTotal()));
+        return searchRes;
     }
 
     @RequestMapping(value = { "/_ac" }, method = { RequestMethod.GET })
@@ -76,6 +84,8 @@ public class SearchController {
                 searchReq.setPage(Integer.parseInt(paramValue));
             } else if("page_size".equalsIgnoreCase(param)) {
                 searchReq.setPageSize(Integer.parseInt(paramValue));
+            } else if("api_key".equalsIgnoreCase(param)) {
+                //NO-OP
             } else {
                 searchReq.addSearchFields(param, StringUtils.trim(paramValue));
             }

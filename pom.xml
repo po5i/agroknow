@@ -34,6 +34,7 @@
         <jdk.version>1.6</jdk.version>
         <slf4j.version>1.6.4</slf4j.version>
         <spring.version>3.2.4.RELEASE</spring.version>
+        <spring-security.version>3.2.0.RELEASE</spring-security.version>
         <logback.version>1.0.1</logback.version>
         <metrics.version>3.0.1</metrics.version>
         <jackson-2.version>2.2.2</jackson-2.version>
@@ -143,7 +144,7 @@
                 <version>${jackson-2.version}</version>
             </dependency>
 
-            <!-- Spring -->
+            <!-- Spring Framework -->
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-core</artifactId>
@@ -153,6 +154,18 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-expression</artifactId>
                 <version>${spring.version}</version>
+            </dependency>
+
+            <!-- Spring Security Framework -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-config</artifactId>
+                <version>${spring-security.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-web</artifactId>
+                <version>${spring-security.version}</version>
             </dependency>
 
             <!-- ElasticSearch -->
@@ -173,7 +186,7 @@
                 <artifactId>joda-time</artifactId>
                 <version>2.3</version>
             </dependency>
-            
+
             <!-- JSR-303 Validation -->
             <dependency>
 				<groupId>javax.validation</groupId>

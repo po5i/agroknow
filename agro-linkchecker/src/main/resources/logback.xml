@@ -83,11 +83,11 @@
 		<appender-ref ref="URL_FILE" />
 	</logger>
 
-	<logger name="com.agroknow" level="DEBUG" additivity="false">
-		<appender-ref ref="STDOUT" />
+	<logger name="com.agroknow" level="INFO" additivity="false">
+		<appender-ref ref="FILE" />
 	</logger>
 
 	<root level="WARN">
-		<appender-ref ref="STDOUT" />
+		<appender-ref ref="FILE" />
 	</root>
 </configuration>

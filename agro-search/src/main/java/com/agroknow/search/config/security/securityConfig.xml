@@ -25,6 +25,7 @@
 
     <!-- http security exclusions -->
     <http pattern="/netbeans-tomcat-status-test" security="none" /><!-- allow netbeans to check server status -->
+    <http pattern="/favicon.ico" security="none" /><!-- exclude favicon from security checks -->
 
     <!-- http security -->
     <http create-session="stateless" authentication-manager-ref="authenticationManager" entry-point-ref="entryPoint"  >

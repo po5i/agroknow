@@ -22,11 +22,11 @@ public class Citation {
         this.title = title;
     }
 
-    public String getISSN() {
+    public String getIssn() {
         return issn;
     }
 
-    public void setISSN(String issn) {
+    public void setIssn(String issn) {
         this.issn = issn;
     }
 

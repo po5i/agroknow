@@ -7,17 +7,17 @@ public class Expression implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private String language;
+    private List<String> language;
     private List<Manifestation> manifestations;
     private List<Citation> citation;
     private List<Publisher> publishers;
     private List<String> descriptionEdition;
 
-    public String getLanguage() {
+    public List<String> getLanguage() {
         return language;
     }
 
-    public void setLanguage(String language) {
+    public void setLanguage(List<String> language) {
         this.language = language;
     }
 
@@ -33,8 +33,8 @@ public class Expression implements Serializable {
         return citation;
     }
 
-    public void setCitation(List<Citation> citations) {
-        this.citation = citations;
+    public void setCitation(List<Citation> citation) {
+        this.citation = citation;
     }
 
     public List<Publisher> getPublishers() {
@@ -53,5 +53,5 @@ public class Expression implements Serializable {
         this.descriptionEdition = descriptionEdition;
     }
 
-
+    
 }

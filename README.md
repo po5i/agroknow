@@ -14,8 +14,9 @@ Auxiliary files
 ===============
 
 rules.txt content:
-
+```
 1, prodinra.inra.fr, 302, #location.url.startsWith('http://prodinra.inra.fr/record/') and #location.redirectsToUrl.startsWith('http://prodinra.inra.fr/?locale=fr#!ConsultNotice'), 200
 2, beyondpenguins.ehe.osu.edu, 301, true, 200
+```
 
 

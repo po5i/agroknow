@@ -9,14 +9,14 @@ import org.hibernate.validator.constraints.NotEmpty;
 public class TokenBlock implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @NotEmpty
+    //@NotEmpty
     private List<String> learningResourceTypes;
-    @NotEmpty
+    //@NotEmpty
     private List<String> endUserRoles;
-    @NotEmpty
+    //@NotEmpty
     private List<String> contexts;
     private Map<String, List<String>> taxonPaths;
-    @NotEmpty
+    //@NotEmpty
     private String ageRange;
 
     /**

@@ -14,7 +14,7 @@ public class LanguageBlock implements Serializable {
     
     @NotEmpty
     private String title;
-    @NotEmpty
+   // @NotEmpty
     private List<String> keywords;
     private String coverage;
     @NotEmpty

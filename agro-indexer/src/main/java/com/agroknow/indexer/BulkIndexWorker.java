@@ -117,7 +117,8 @@ public class BulkIndexWorker<T extends InternalFormat> implements Runnable {
 
             // create an indexRequest and add it to the bulk
             String id = doc.getIdentifier(); // id is also in the filename and can be read with FilenameUtils.getBaseName(f.getAbsolutePath());
-            IndexRequestBuilder indexRequestBuilder = esClient.prepareIndex(fileFormat, fileFormat, id)
+            //IndexRequestBuilder indexRequestBuilder = esClient.prepareIndex(fileFormat, fileFormat, id)
+            IndexRequestBuilder indexRequestBuilder = esClient.prepareIndex(fileFormat, fileFormat)
                                                               .setSource(source);
             bulkRequest.add(indexRequestBuilder);
         }

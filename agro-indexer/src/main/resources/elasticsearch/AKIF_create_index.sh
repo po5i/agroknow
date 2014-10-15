@@ -94,9 +94,7 @@ curl -XPUT "http://$1/akif/" -d '{
                 }
             ],
 
-            "_id" : {
-                "path" : "identifier"
-            },
+
 
             "_source" : {
                 "enabled" : true,

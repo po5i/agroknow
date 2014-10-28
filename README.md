@@ -9,6 +9,7 @@ How to run the indexer
 java -jar agro-indexer-1.0-SNAPSHOT.jar --bulk-size 1000 --root-directory (akif_dir) --runtime-directory /path/to/lastcheck
 
 *where lastcheck is a writable directory.
+*first you have to run: /agroknow/agro-indexer/src/main/resources/elasticsearch# sh AKIF_create_index.sh localhost:9200
 
 Auxiliary files
 ===============

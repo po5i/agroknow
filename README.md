@@ -1,3 +1,10 @@
+How to build everything
+=======================
+
+First you have to download this dependency from here https://dl.dropboxusercontent.com/u/24547895/jdeferred.zip and unzip it into  the maven repository (usually /root/.m2/repository/org )
+
+mvn install clean
+
 How to run the linkchecker
 ==========================
 
